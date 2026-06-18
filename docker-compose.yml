@@ -1,0 +1,44 @@
+# Run the full stack (PostgreSQL + API) with: docker compose up --build
+# Seed the demo data once it is up:  docker compose exec api npm run prisma:seed
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: presale
+      POSTGRES_PASSWORD: presale_pw
+      POSTGRES_DB: presale
+    ports:
+      - '5432:5432'
+    volumes:
+      - presale_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U presale -d presale']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: '3000'
+      API_PREFIX: api
+      CORS_ORIGINS: '*'
+      DATABASE_URL: postgresql://presale:presale_pw@db:5432/presale?schema=public
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-please_change_me_to_a_long_random_value_01}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-please_change_me_to_a_long_random_value_02}
+      JWT_ACCESS_TTL: 900s
+      JWT_REFRESH_TTL: 7d
+      THROTTLE_TTL_MS: '60000'
+      THROTTLE_LIMIT: '300'
+      LOG_LEVEL: info
+    ports:
+      - '3000:3000'
+
+volumes:
+  presale_pgdata:

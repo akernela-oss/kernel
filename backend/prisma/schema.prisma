@@ -1,0 +1,329 @@
+// Presale Mobile Command Center — database schema
+// Mirrors the frontend data model (customers, sales, transactions, checks,
+// debts, investments, members, accounts, KPIs) with a proper relational design.
+//
+// Design notes for scale & correctness:
+//  - Primary keys are collision-free cuids (safe under high concurrency).
+//  - A monotonic `seq` (DB autoincrement) backs a human friendly `code`.
+//  - Monetary columns use Decimal(18,2); rates/percentages use Float.
+//  - Every foreign key is indexed for fast joins on large datasets.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  FINANCE
+  SELLER
+  CONTRACT
+}
+
+model User {
+  id           String   @id @default(cuid())
+  seq          Int      @unique @default(autoincrement())
+  name         String
+  username     String   @unique
+  passwordHash String
+  role         Role
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedCustomers Customer[]     @relation("CustomerOwner")
+  refreshTokens  RefreshToken[]
+  auditLogs      AuditLog[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Account {
+  id        String   @id @default(cuid())
+  seq       Int      @unique @default(autoincrement())
+  name      String
+  type      String
+  opening   Decimal  @default(0) @db.Decimal(18, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+  seq        Int      @unique @default(autoincrement())
+  name       String
+  phone      String?
+  city       String?
+  source     String?
+  status     String   @default("فعال")
+  nextAction String?
+  ownerId    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  owner        User?         @relation("CustomerOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  sales        Sale[]
+  transactions Transaction[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@map("customers")
+}
+
+model Member {
+  id             String   @id @default(cuid())
+  seq            Int      @unique @default(autoincrement())
+  name           String
+  role           String
+  commissionRate Float    @default(0)
+  status         String   @default("فعال")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sales        Sale[]
+  transactions Transaction[]
+
+  @@map("members")
+}
+
+model Sale {
+  id             String   @id @default(cuid())
+  seq            Int      @unique @default(autoincrement())
+  customerId     String
+  memberId       String?
+  date           DateTime @default(now())
+  category       String
+  model          String
+  quantity       Int      @default(1)
+  marketPrice    Decimal  @default(0) @db.Decimal(18, 2)
+  discount       Float    @default(0)
+  contractNo     String?
+  contractStatus String   @default("بدون قرارداد")
+  deliveryDate   DateTime?
+  orderStatus    String   @default("ثبت شده")
+  nextAction     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  member       Member?       @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  transactions Transaction[]
+
+  @@index([customerId])
+  @@index([memberId])
+  @@index([deliveryDate])
+  @@index([contractStatus])
+  @@map("sales")
+}
+
+model Transaction {
+  id           String   @id @default(cuid())
+  seq          Int      @unique @default(autoincrement())
+  date         DateTime @default(now())
+  accountId    String
+  type         String
+  party        String?
+  customerId   String?
+  memberId     String?
+  orderId      String?
+  debtId       String?
+  investmentId String?
+  inflow       Decimal  @default(0) @db.Decimal(18, 2)
+  outflow      Decimal  @default(0) @db.Decimal(18, 2)
+  method       String   @default("نقدی")
+  checkId      String?
+  note         String?
+  createdAt    DateTime @default(now())
+
+  account    Account     @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  customer   Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  member     Member?     @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  order      Sale?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  debt       Debt?       @relation(fields: [debtId], references: [id], onDelete: SetNull)
+  investment Investment? @relation(fields: [investmentId], references: [id], onDelete: SetNull)
+
+  @@index([accountId])
+  @@index([orderId])
+  @@index([customerId])
+  @@index([memberId])
+  @@index([debtId])
+  @@index([investmentId])
+  @@index([date])
+  @@index([type])
+  @@map("transactions")
+}
+
+model Check {
+  id            String    @id @default(cuid())
+  seq           Int       @unique @default(autoincrement())
+  type          String
+  transactionId String?
+  refId         String?
+  party         String
+  bank          String?
+  number        String
+  issueDate     DateTime?
+  dueDate       DateTime
+  amount        Decimal   @default(0) @db.Decimal(18, 2)
+  status        String    @default("ثبت شده")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([dueDate])
+  @@index([status])
+  @@map("checks")
+}
+
+model Expense {
+  id            String   @id @default(cuid())
+  seq           Int      @unique @default(autoincrement())
+  title         String
+  category      String
+  monthlyAmount Decimal  @default(0) @db.Decimal(18, 2)
+  dueDay        Int      @default(1)
+  owner         String?
+  status        String   @default("فعال")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("expenses")
+}
+
+model Debt {
+  id          String   @id @default(cuid())
+  seq         Int      @unique @default(autoincrement())
+  creditor    String
+  type        String
+  description String?
+  principal   Decimal  @default(0) @db.Decimal(18, 2)
+  createdAt   DateTime @default(now())
+  dueDate     DateTime
+  status      String   @default("فعال")
+  updatedAt   DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@index([dueDate])
+  @@map("debts")
+}
+
+model Investment {
+  id           String   @id @default(cuid())
+  seq          Int      @unique @default(autoincrement())
+  title        String
+  source       String?
+  startDate    DateTime @default(now())
+  currentValue Decimal  @default(0) @db.Decimal(18, 2)
+  status       String   @default("فعال")
+  exitTarget   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@map("investments")
+}
+
+model KpiDefinition {
+  id         String   @id @default(cuid())
+  seq        Int      @unique @default(autoincrement())
+  title      String
+  group      String
+  metric     String
+  target     Float    @default(0)
+  direction  String   @default("higher")
+  unit       String   @default("عدد")
+  warning    Float    @default(0)
+  critical   Float    @default(0)
+  visibility String   @default("admin,finance")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("kpi_definitions")
+}
+
+model FinanceDefinition {
+  id        String   @id @default(cuid())
+  seq       Int      @unique @default(autoincrement())
+  type      String
+  code      String   @unique
+  title     String
+  group     String?
+  formula   String?
+  status    String   @default("فعال")
+  ownerRole String   @default("finance")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("finance_definitions")
+}
+
+model AppSetting {
+  id                      String   @id @default("default")
+  nearDeliveryDays        Int      @default(14)
+  criticalDeliveryDays    Int      @default(5)
+  checkWarningDays        Int      @default(7)
+  debtWarningDays         Int      @default(7)
+  riskOverdue             Int      @default(45)
+  riskCritical            Int      @default(30)
+  riskNear                Int      @default(15)
+  riskBalance             Int      @default(20)
+  riskContract            Int      @default(20)
+  riskCheckCritical       Int      @default(8)
+  riskDebtCritical        Int      @default(8)
+  discountOptions         Float[]  @default([0.07, 0.14, 0.16, 0.25, 0.27, 0.29])
+  targetRevenue           Decimal  @default(500000000) @db.Decimal(18, 2)
+  targetMaxCustomerBalance Decimal @default(150000000) @db.Decimal(18, 2)
+  targetMaxRiskScore      Int      @default(55)
+  updatedAt               DateTime @updatedAt
+
+  @@map("app_settings")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  username   String?
+  role       String?
+  action     String
+  method     String
+  path       String
+  entity     String?
+  entityId   String?
+  statusCode Int?
+  durationMs Int?
+  ip         String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([entity])
+  @@map("audit_logs")
+}
