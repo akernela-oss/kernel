@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Role, User } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+// Default import works whether bcryptjs is loaded as CommonJS or ESM.
+import bcrypt from 'bcryptjs';
 import { code } from '../common/util/convert';
 import { paginate, PaginatedResult, PaginationDto } from '../common/dto/pagination.dto';
 import { PrismaService } from '../prisma/prisma.service';

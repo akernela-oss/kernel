@@ -6,7 +6,7 @@
  * Run with: `npm run prisma:seed`
  */
 import { PrismaClient, Role } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 const d = (s: string) => new Date(`${s}T00:00:00.000Z`);
