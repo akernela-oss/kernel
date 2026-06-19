@@ -21,6 +21,7 @@ import { QueueModule } from './modules/queue/queue.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { SeedModule } from './seed/seed.module';
 import { AccountsModule } from './resources/accounts/accounts.module';
 import { ChecksModule } from './resources/checks/checks.module';
 import { CustomersModule } from './resources/customers/customers.module';
@@ -67,6 +68,7 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     CacheModule,
     EngineModule,
+    SeedModule,
     AuthModule,
     UsersModule,
     CustomersModule,

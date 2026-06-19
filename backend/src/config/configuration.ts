@@ -16,6 +16,7 @@ export interface AppConfig {
     limit: number;
   };
   logLevel: string;
+  autoSeed: boolean;
 }
 
 export default (): AppConfig => ({
@@ -38,4 +39,5 @@ export default (): AppConfig => ({
     limit: parseInt(process.env.THROTTLE_LIMIT ?? '300', 10),
   },
   logLevel: process.env.LOG_LEVEL ?? 'info',
+  autoSeed: (process.env.AUTO_SEED ?? 'true').toLowerCase() !== 'false',
 });

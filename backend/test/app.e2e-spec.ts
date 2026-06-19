@@ -164,6 +164,35 @@ describe('Presale Command Center API (e2e)', () => {
     });
   });
 
+  describe('frontend data contract', () => {
+    const paths = [
+      '/customers',
+      '/members',
+      '/accounts',
+      '/sales',
+      '/transactions',
+      '/checks',
+      '/debts',
+      '/investments',
+      '/expenses',
+      '/kpi/definitions',
+      '/finance-definitions',
+    ];
+    it('every list endpoint the UI bootstraps returns a paginated array', async () => {
+      for (const p of paths) {
+        const res = await request(server).get(`/api/v1${p}?limit=200`).set(auth('ceo'));
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body.data)).toBe(true);
+      }
+    });
+    it('settings exposes formulas the UI needs', async () => {
+      const res = await request(server).get('/api/v1/settings').set(auth('ceo'));
+      expect(res.status).toBe(200);
+      expect(res.body.formulas.risk).toBeDefined();
+      expect(Array.isArray(res.body.formulas.discountOptions)).toBe(true);
+    });
+  });
+
   describe('validation', () => {
     it('rejects a customer without a name', async () => {
       const res = await request(server)

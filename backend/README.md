@@ -154,5 +154,9 @@ From the repository root:
 
 ```bash
 docker compose up --build
-docker compose exec api npm run prisma:seed
 ```
+
+Migrations run on boot and the database **auto-seeds on first run** when empty
+(toggle with `AUTO_SEED`), so no manual seed step is needed. The web UI is
+served at **http://localhost:3000** and talks to the live API; log in with
+`ceo / 1234`.

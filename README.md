@@ -44,9 +44,11 @@ admin-only audit log, and so on.
 
 ```bash
 docker compose up --build
-docker compose exec api npm run prisma:seed
-# API → http://localhost:3000/api/v1   ·   Docs → http://localhost:3000/api/docs
 ```
+
+Then open **http://localhost:3000** — the web UI is served there and talks to
+the live API. The database **auto-seeds on first run**, so just log in with
+`ceo / 1234`. API docs are at `http://localhost:3000/api/docs`.
 
 ### Local backend
 
@@ -64,10 +66,12 @@ reference, scalability notes and testing guide.
 
 ### Frontend
 
-Open `frontend/index.html` directly in a browser to explore the original UI and
-data model. It points to the demo accounts documented in `frontend/README_FA.md`.
-To drive it from the live API instead of `localStorage`, point its fetch calls
-at `/api/v1` and authenticate via `POST /api/v1/auth/login`.
+The UI now talks to the live backend: it authenticates via
+`POST /api/v1/auth/login`, loads every collection from the API, and sends each
+create/update back to the server (data lives in PostgreSQL, not the browser).
+It is served by the backend at the root, so the canonical way to use it is to
+open **http://localhost:3000** with the backend running. The same file is kept
+at `backend/public/index.html` (served) and `frontend/index.html` (reference).
 
 ## Quality gates
 

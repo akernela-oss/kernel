@@ -37,6 +37,7 @@ services:
       THROTTLE_TTL_MS: '60000'
       THROTTLE_LIMIT: '300'
       LOG_LEVEL: info
+      AUTO_SEED: 'true'
     ports:
       - '3000:3000'
 

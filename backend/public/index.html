@@ -382,6 +382,62 @@ function migrateState(){
 }
 function load(){let s;try{s=JSON.parse(storage.getItem(KEY))}catch(e){};s=s||clone(SEED);s.formulas=s.formulas||clone(SEED.formulas);s.formulas.discountOptions=s.formulas.discountOptions||clone(SEED.formulas.discountOptions);s.formulas.targets=s.formulas.targets||clone(SEED.formulas.targets);return s}
 function save(){storage.setItem(KEY,JSON.stringify(state))}
+
+/* ===================== Live backend API integration ===================== */
+const API_BASE=(location.origin.replace(/\/+$/,""))+"/api/v1";
+let TOKENS={access:storage.getItem("pcc_at")||"",refresh:storage.getItem("pcc_rt")||""};
+function setTokens(a,r){TOKENS.access=a||"";TOKENS.refresh=r||"";if(a)storage.setItem("pcc_at",a);else storage.removeItem("pcc_at");if(r)storage.setItem("pcc_rt",r);else storage.removeItem("pcc_rt");}
+function num(v){const n=Number(v);return isFinite(n)?n:0;}
+function clean(o){const r={};for(const k in o){const v=o[k];if(v!==""&&v!==undefined&&v!==null)r[k]=v;}return r;}
+async function api(path,{method="GET",body,auth=true}={}){
+  const headers={"Content-Type":"application/json"};
+  if(auth&&TOKENS.access)headers.Authorization="Bearer "+TOKENS.access;
+  const send=()=>fetch(API_BASE+path,{method,headers,body:body!==undefined?JSON.stringify(body):undefined});
+  let res=await send();
+  if(res.status===401&&auth&&TOKENS.refresh){
+    const r=await fetch(API_BASE+"/auth/refresh",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({refreshToken:TOKENS.refresh})});
+    if(r.ok){const d=await r.json();setTokens(d.accessToken,d.refreshToken);headers.Authorization="Bearer "+TOKENS.access;res=await send();}else{setTokens("","");}
+  }
+  if(!res.ok){let m="خطای سرور ("+res.status+")";try{const e=await res.json();m=Array.isArray(e.message)?e.message.join("، "):(e.message||m);}catch(_){ }const err=new Error(m);err.status=res.status;throw err;}
+  if(res.status===204)return null;
+  const ct=res.headers.get("content-type")||"";return ct.includes("application/json")?res.json():null;
+}
+async function apiList(path){
+  try{
+    const sep=path.includes("?")?"&":"?";
+    let page=1,all=[],meta=null;
+    do{
+      const r=await api(path+sep+"page="+page+"&limit=200");
+      const data=Array.isArray(r)?r:((r&&r.data)||[]);
+      all=all.concat(data);
+      meta=(r&&r.meta)?r.meta:null;
+      page++;
+    }while(meta&&meta.pages&&page<=meta.pages&&all.length<5000);
+    return all;
+  }catch(e){if(e.status===403)return [];throw e;}
+}
+async function loadFromApi(){
+  try{const cfg=await api("/settings");if(cfg){if(cfg.settings)state.settings=cfg.settings;if(cfg.formulas)state.formulas=cfg.formulas;}}catch(_){ }
+  const [customers,members,accounts,sales,transactions,checks,debts,investments,expenses,kpiDefinitions,financeDefinitions]=await Promise.all([
+    apiList("/customers"),apiList("/members"),apiList("/accounts"),
+    apiList("/sales"),apiList("/transactions"),apiList("/checks"),
+    apiList("/debts"),apiList("/investments"),apiList("/expenses"),
+    apiList("/kpi/definitions"),apiList("/finance-definitions")
+  ]);
+  Object.assign(state,{customers,members,accounts,sales,transactions,checks,debts,investments,expenses,kpiDefinitions,financeDefinitions});
+}
+async function apiCreate(path,body){await api(path,{method:"POST",body:clean(body)});await loadFromApi();render();}
+function showApp(){$("#loginScreen").style.display="none";$("#appShell").classList.remove("locked");}
+function showLogin(){$("#loginScreen").style.display="grid";$("#appShell").classList.add("locked");}
+function applySession(u){state.sessionRole=(u.role||"").toLowerCase();state.currentSellerId=u.id||state.currentSellerId;if($("#userChip"))$("#userChip").textContent=(u.name||"کاربر")+" / "+roleFa(state.sessionRole);}
+async function boot(){
+  if(TOKENS.access){
+    try{const me=await api("/auth/me");applySession(me);await loadFromApi();showApp();render();setTimeout(renderDash,200);return;}
+    catch(_){setTokens("","");}
+  }
+  showLogin();
+}
+/* ======================================================================== */
 function by(a,id){return a.find(x=>x.id===id)||{}}
 function sum(a,f){return a.reduce((t,x)=>t+Number(f(x)||0),0)}
 function next(prefix,arr){return `${prefix}-${String(arr.length+1001).padStart(4,"0")}`}
@@ -538,20 +594,20 @@ function nav(p){$$(".page").forEach(x=>x.classList.toggle("active",x.id===p));$$
 $$(".nav button").forEach(b=>b.onclick=()=>nav(b.dataset.page));if($("#roleSelect")) $("#roleSelect").onchange=e=>{state.sessionRole=e.target.value;render();};
 $("#queueSortMode")?.addEventListener("change",()=>renderQueue());
 $("#refreshQueue")?.addEventListener("click",()=>renderQueue());
-$("#printPage").onclick=()=>print();$("#exportJson").onclick=()=>{let blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="presale-luxury-data.json";a.click();URL.revokeObjectURL(a.href)};$("#resetDemo").onclick=()=>{if(confirm("بازنشانی شود؟")){storage.removeItem(KEY);state=clone(SEED);migrateState();initAuth();render()}}
-$("#saveFormula").onclick=()=>{state.settings.nearDeliveryDays=Number($("#nearDeliveryDays").value);state.settings.criticalDeliveryDays=Number($("#criticalDeliveryDays").value);state.settings.checkWarningDays=Number($("#checkWarningDays").value);state.settings.debtWarningDays=Number($("#debtWarningDays").value);Object.assign(state.formulas.risk,{overdue:Number($("#riskOverdue").value),critical:Number($("#riskCritical").value),near:Number($("#riskNear").value),balance:Number($("#riskBalance").value),contract:Number($("#riskContract").value),checkCritical:Number($("#riskCheck").value),debtCritical:Number($("#riskDebt").value)});state.formulas.discountOptions=$("#discountOptionsText").value.split(",").map(x=>Number(x.trim())/100).filter(x=>x>0&&x<1);state.formulas.targets={revenue:Number($("#targetRevenue").value),maxCustomerBalance:Number($("#maxCustomerBalance").value),maxRiskScore:Number($("#maxRiskScore").value)};render();alert("فرمول‌ها و هشدارها ذخیره شد.")}
-$("#customerForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.customers.push({id:next("CUS",state.customers),ownerId:state.currentSellerId,...fd});e.target.reset();render();nav("crm")}
-$("#sellerCustomerForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.customers.push({id:next("CUS",state.customers),ownerId:state.currentSellerId,...fd});e.target.reset();render();nav("seller")};
-$("#saleForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target)),d=Number(fd.discount);state.sales.push({id:next("ORD",state.sales),date:new Date().toISOString().slice(0,10),customerId:fd.customerId,category:fd.category,model:fd.model,quantity:Number(fd.quantity||1),marketPrice:Number(fd.marketPrice||0),discount:d,memberId:fd.memberId,contractNo:fd.contractNo,contractStatus:fd.contractStatus,deliveryDate:fd.deliveryDate,orderStatus:fd.orderStatus,nextAction:fd.nextAction});e.target.reset();render();nav("sales")}
-$("#transactionForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.transactions.push({id:next("TRX",state.transactions),date:new Date().toISOString().slice(0,10),accountId:fd.accountId,type:fd.type,party:fd.party,customerId:fd.customerId,memberId:fd.memberId,orderId:fd.orderId,debtId:fd.debtId,investmentId:fd.investmentId,inflow:Number(fd.inflow||0),outflow:Number(fd.outflow||0),method:fd.method,checkId:fd.checkId,note:fd.note});e.target.reset();render();nav("transactions")}
+$("#printPage").onclick=()=>print();$("#exportJson").onclick=()=>{let blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="presale-luxury-data.json";a.click();URL.revokeObjectURL(a.href)};$("#resetDemo").onclick=async()=>{try{await loadFromApi();render();}catch(e){alert(e.message);}};
+$("#saveFormula").onclick=async()=>{const body={nearDeliveryDays:num($("#nearDeliveryDays").value),criticalDeliveryDays:num($("#criticalDeliveryDays").value),checkWarningDays:num($("#checkWarningDays").value),debtWarningDays:num($("#debtWarningDays").value),riskOverdue:num($("#riskOverdue").value),riskCritical:num($("#riskCritical").value),riskNear:num($("#riskNear").value),riskBalance:num($("#riskBalance").value),riskContract:num($("#riskContract").value),riskCheckCritical:num($("#riskCheck").value),riskDebtCritical:num($("#riskDebt").value),discountOptions:$("#discountOptionsText").value.split(",").map(x=>Number(x.trim())/100).filter(x=>x>0&&x<1),targetRevenue:num($("#targetRevenue").value),targetMaxCustomerBalance:num($("#maxCustomerBalance").value),targetMaxRiskScore:num($("#maxRiskScore").value)};try{await api("/settings",{method:"PATCH",body});await loadFromApi();render();alert("فرمول‌ها و هشدارها ذخیره شد.");}catch(e){alert(e.message);}};
+$("#customerForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/customers",fd);e.target.reset();nav("crm");}catch(err){alert(err.message);}};
+$("#sellerCustomerForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/customers",fd);e.target.reset();nav("seller");}catch(err){alert(err.message);}};
+$("#saleForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/sales",{customerId:fd.customerId,memberId:fd.memberId,category:fd.category,model:fd.model,quantity:num(fd.quantity||1),marketPrice:num(fd.marketPrice||0),discount:num(fd.discount||0),contractNo:fd.contractNo,contractStatus:fd.contractStatus,deliveryDate:fd.deliveryDate,orderStatus:fd.orderStatus,nextAction:fd.nextAction});e.target.reset();nav("sales");}catch(err){alert(err.message);}};
+$("#transactionForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/transactions",{accountId:fd.accountId,type:fd.type,party:fd.party,customerId:fd.customerId,memberId:fd.memberId,orderId:fd.orderId,debtId:fd.debtId,investmentId:fd.investmentId,inflow:num(fd.inflow||0),outflow:num(fd.outflow||0),method:fd.method,checkId:fd.checkId,note:fd.note});e.target.reset();nav("transactions");}catch(err){alert(err.message);}};
 
-$("#loginForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));let u=state.users.find(x=>x.username===fd.username && x.password===fd.password);if(!u){$("#loginError").textContent="نام کاربری یا رمز عبور اشتباه است.";return}state.sessionUserId=u.id;state.sessionRole=u.role;state.currentSellerId=u.role==="seller"?u.id:(state.currentSellerId||"USR-SELL-001");save();initAuth();render();};
-$("#logoutBtn").onclick=()=>{state.sessionUserId="";save();initAuth();};
-$("#kpiForm")?.addEventListener("submit",e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.kpiDefinitions.push({id:next("KPI",state.kpiDefinitions),title:fd.title,group:fd.group,metric:fd.metric,target:Number(fd.target||0),direction:fd.direction,unit:fd.unit,warning:Number(fd.warning||0),critical:Number(fd.critical||0),visibility:fd.visibility});e.target.reset();render();nav("kpiStudio")});
-$("#definitionForm")?.addEventListener("submit",e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.financeDefinitions.push({id:next("DEF",state.financeDefinitions),type:fd.type,code:fd.code,title:fd.title,group:fd.group,formula:fd.formula,status:fd.status,ownerRole:fd.ownerRole});e.target.reset();render();nav("kpiStudio")});
-$("#checkForm")?.addEventListener("submit",e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.checks.push({id:next("CHK",state.checks),type:fd.type,transactionId:"",refId:fd.refId,party:fd.party,bank:fd.bank,number:fd.number,issueDate:fd.issueDate,dueDate:fd.dueDate,amount:Number(fd.amount||0),status:fd.status});e.target.reset();render();nav("checks")});
+$("#loginForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));$("#loginError").textContent="";try{const s=await api("/auth/login",{method:"POST",auth:false,body:{username:fd.username,password:fd.password}});setTokens(s.accessToken,s.refreshToken);applySession(s.user);await loadFromApi();showApp();render();setTimeout(renderDash,200);}catch(err){$("#loginError").textContent=err.message||"ورود ناموفق بود.";}};
+$("#logoutBtn").onclick=async()=>{try{if(TOKENS.refresh)await api("/auth/logout",{method:"POST",auth:false,body:{refreshToken:TOKENS.refresh}});}catch(e){}setTokens("","");showLogin();};
+$("#kpiForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/kpi/definitions",{title:fd.title,group:fd.group,metric:fd.metric,target:num(fd.target||0),direction:fd.direction,unit:fd.unit,warning:num(fd.warning||0),critical:num(fd.critical||0),visibility:fd.visibility});e.target.reset();nav("kpiStudio");}catch(err){alert(err.message);}};
+$("#definitionForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/finance-definitions",{type:fd.type,code:fd.code,title:fd.title,group:fd.group,formula:fd.formula,status:fd.status,ownerRole:fd.ownerRole});e.target.reset();nav("kpiStudio");}catch(err){alert(err.message);}};
+$("#checkForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/checks",{type:fd.type,number:fd.number,party:fd.party,bank:fd.bank,refId:fd.refId,issueDate:fd.issueDate,dueDate:fd.dueDate,amount:num(fd.amount||0),status:fd.status});e.target.reset();nav("checks");}catch(err){alert(err.message);}};
 
-addEventListener("resize",()=>setTimeout(renderDash,150));initAuth();render();setTimeout(renderDash,250);setTimeout(renderDash,1000);
+addEventListener("resize",()=>setTimeout(renderDash,150));boot();
 </script>
 </body>
 </html>
