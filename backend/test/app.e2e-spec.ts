@@ -1,4 +1,5 @@
 import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
 import { execSync } from 'child_process';
 import { join } from 'path';
@@ -12,7 +13,7 @@ import { AppModule } from '../src/app.module';
  * validation and auditing all work together.
  */
 describe('Presale Command Center API (e2e)', () => {
-  let app: INestApplication;
+  let app: NestExpressApplication;
   let server: ReturnType<INestApplication['getHttpServer']>;
   const tokens: Record<string, string> = {};
 
@@ -32,7 +33,8 @@ describe('Presale Command Center API (e2e)', () => {
     });
 
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = moduleRef.createNestApplication();
+    app = moduleRef.createNestApplication<NestExpressApplication>();
+    app.useStaticAssets(join(__dirname, '..', 'public'));
     app.setGlobalPrefix('api');
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
@@ -47,6 +49,15 @@ describe('Presale Command Center API (e2e)', () => {
 
   afterAll(async () => {
     await app.close();
+  });
+
+  describe('web UI', () => {
+    it('serves the SPA at the root', async () => {
+      const res = await request(server).get('/');
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toContain('text/html');
+      expect(res.text).toContain('loginForm');
+    });
   });
 
   describe('health', () => {

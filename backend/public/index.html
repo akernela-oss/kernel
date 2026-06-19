@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Luxury Presale Command Center</title>
+  <style>
+    :root{
+      --black:#02040A; --obsidian:#070B14; --panel:rgba(8,13,25,.76); --panel2:rgba(11,18,34,.92);
+      --line:rgba(245,203,92,.22); --line2:rgba(255,255,255,.09);
+      --gold:#F5CB5C; --gold2:#D6A83A; --royal:#122A88; --blue:#2563EB; --cyan:#22D3EE;
+      --emerald:#005B41; --emerald2:#10B981; --purple:#6D28D9; --violet:#A855F7;
+      --red:#EF4444; --orange:#F97316; --white:#FFFFFF; --text:#F8FAFC; --muted:#A7B1C2;
+      --shadow:0 34px 90px rgba(0,0,0,.44); --radius:28px;
+      --sidebar:268px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;max-width:100%;overflow-x:hidden}
+    body{
+      margin:0;font-family:Tahoma,Arial,sans-serif;color:var(--text);
+      background:
+        radial-gradient(circle at 13% 8%, rgba(168,85,247,.20), transparent 28%),
+        radial-gradient(circle at 78% 18%, rgba(37,99,235,.18), transparent 30%),
+        radial-gradient(circle at 45% 92%, rgba(0,91,65,.20), transparent 35%),
+        linear-gradient(135deg,#02040A,#070B14 45%,#030712);
+    }
+    body:before{
+      content:"";position:fixed;inset:0;pointer-events:none;opacity:.30;
+      background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+      background-size:56px 56px;mask-image:radial-gradient(circle at center,black,transparent 85%);
+    }
+    button,input,select,textarea{font-family:inherit}
+    .app{display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100vh;width:100%;max-width:100vw}
+    .sidebar{
+      position:sticky;top:0;height:100vh;overflow:auto;padding:20px 14px;
+      background:linear-gradient(180deg,rgba(2,4,10,.96),rgba(7,11,20,.90));
+      border-left:1px solid var(--line);box-shadow:var(--shadow);z-index:5;
+    }
+    .brand{display:flex;align-items:center;gap:12px;padding:10px 8px 20px}
+    .brand-mark{width:56px;height:56px;border-radius:22px;display:grid;place-items:center;color:#07111F;font-weight:900;font-size:24px;background:conic-gradient(from 210deg,var(--gold),#fff2ba,var(--emerald2),var(--royal),var(--gold));box-shadow:0 0 42px rgba(245,203,92,.35)}
+    .brand h1{font-size:16px;margin:0}.brand p{margin:5px 0 0;color:var(--muted);font-size:11px}
+    .nav{display:grid;gap:7px}.nav button{
+      border:1px solid transparent;background:transparent;color:#D7DEEA;border-radius:16px;padding:12px;text-align:right;cursor:pointer;transition:.22s ease;font-size:13px
+    }
+    .nav button:hover,.nav button.active{border-color:var(--line);background:linear-gradient(90deg,rgba(245,203,92,.16),rgba(18,42,136,.22),rgba(0,91,65,.12));color:#fff;box-shadow:inset 0 0 28px rgba(245,203,92,.04)}
+    .side-status{margin-top:18px;border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:20px;padding:14px;color:var(--muted);font-size:12px;line-height:1.8}
+    .main{min-width:0;padding:22px;width:100%;max-width:100vw}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;padding:18px 20px;border:1px solid var(--line);border-radius:30px;background:linear-gradient(135deg,rgba(8,13,25,.86),rgba(14,21,40,.62));box-shadow:var(--shadow);backdrop-filter:blur(20px)}
+    .topbar h2{margin:0;font-size:24px}.topbar p{margin:6px 0 0;color:var(--muted);font-size:12px}
+    .top-actions,.btn-row{display:flex;gap:10px;flex-wrap:wrap}.btn{
+      border:0;border-radius:15px;padding:11px 14px;font-weight:800;cursor:pointer;transition:.2s;white-space:nowrap
+    }
+    .btn:hover{transform:translateY(-1px);filter:brightness(1.08)}.btn.primary{background:linear-gradient(135deg,var(--gold),#FFF1AE);color:#07111F;box-shadow:0 16px 34px rgba(245,203,92,.18)}
+    .btn.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line2);color:#EAF0F8}.btn.emerald{background:linear-gradient(135deg,var(--emerald),var(--emerald2));color:white}.btn.purple{background:linear-gradient(135deg,var(--purple),var(--violet));color:white}
+    .page{display:none;min-width:0}.page.active{display:block;animation:enter .28s ease}@keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .lux-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.65fr);gap:16px;margin-bottom:16px}
+    .card,.panel{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);box-shadow:var(--shadow);backdrop-filter:blur(18px);min-width:0;overflow:hidden}
+    .hero{padding:28px;position:relative;background:linear-gradient(135deg,rgba(245,203,92,.14),rgba(18,42,136,.22),rgba(0,91,65,.10))}
+    .hero:after{content:"";position:absolute;left:-70px;bottom:-90px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.25),transparent 66%)}
+    .eyebrow{font-size:11px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase}.hero h3{font-size:34px;margin:10px 0}.hero p{color:#D2DAE8;line-height:1.9;max-width:850px}
+    .hero-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.pill{border:1px solid var(--line2);background:rgba(255,255,255,.06);padding:10px 13px;border-radius:999px;color:#EAF0F8;font-size:12px}.pill strong{color:var(--gold);margin-left:6px}
+    .gauge-card{padding:14px;display:grid;place-items:center}.gauge-card canvas{width:100%;max-width:330px;height:220px}.gauge-card span{color:var(--muted);font-size:12px}
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.kpi{padding:16px;border:1px solid var(--line2);border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.025));position:relative;overflow:hidden;min-width:0}.kpi:before{content:"";position:absolute;right:-25px;top:-45px;width:110px;height:110px;border-radius:50%;background:rgba(245,203,92,.10)}.kpi label{display:block;color:var(--muted);font-size:11px}.kpi strong{display:block;font-size:22px;color:#fff;margin-top:8px;direction:ltr;text-align:right}.kpi small{color:var(--gold);font-size:11px}
+    .chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.panel{padding:16px;margin-bottom:16px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.panel-head h3{margin:0;font-size:17px}.panel-head span{color:var(--muted);font-size:12px}.chart canvas{width:100%;height:300px}
+    .table-wrap{width:100%;max-width:100%;overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:18px}
+    table{width:100%;border-collapse:separate;border-spacing:0;background:rgba(2,6,23,.36);min-width:760px}th,td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.065);font-size:12px;white-space:nowrap;text-align:right}th{position:sticky;top:0;background:linear-gradient(180deg,#101827,#07111F);color:var(--gold);z-index:1}td{color:#E7EEF9}tr:hover td{background:rgba(255,255,255,.04)}
+    .badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-weight:800;font-size:11px}.ok{color:#9FF6C2;background:rgba(16,185,129,.13)}.warn{color:#FFE08A;background:rgba(245,203,92,.14)}.danger{color:#FCA5A5;background:rgba(239,68,68,.14)}.info{color:#BBD1FF;background:rgba(37,99,235,.14)}
+    .split{display:grid;grid-template-columns:minmax(300px,.85fr) minmax(0,1.55fr);gap:16px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.form-grid.wide{grid-template-columns:repeat(4,minmax(0,1fr))}
+    input,select,textarea{width:100%;min-width:0;background:rgba(2,6,23,.58);color:white;border:1px solid rgba(255,255,255,.12);border-radius:15px;padding:12px;outline:none}input::placeholder{color:#667085}.search{max-width:260px}
+    .discount-rotor{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;padding:10px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid var(--line2)}.rotor-btn{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#EAF0F8;border-radius:999px;padding:9px 13px;cursor:pointer}.rotor-btn.active{background:linear-gradient(135deg,var(--gold),#FFF1AE);color:#07111F;font-weight:900}
+    .formula-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.formula-card{border:1px solid var(--line2);border-radius:22px;background:rgba(255,255,255,.045);padding:14px}.formula-card h4{margin:0 0 10px;color:var(--gold)}.formula-card label{display:grid;gap:7px;color:var(--muted);font-size:12px;margin-bottom:10px}.formula-line{direction:ltr;text-align:left;background:#020617;color:#B7F7D8;border:1px solid rgba(16,185,129,.25);padding:10px;border-radius:13px;font-family:Consolas,monospace;font-size:12px;overflow:auto}
+    .report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.report-row{display:flex;justify-content:space-between;gap:10px;padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045);margin-bottom:8px}.report-row span{color:var(--muted)}.report-row strong{color:var(--gold);direction:ltr}
+    .mobile-tabs{display:none}
+
+    .role-select{
+      min-width:210px;background:linear-gradient(135deg,rgba(0,91,65,.55),rgba(18,42,136,.45));
+      border-color:rgba(245,203,92,.28);font-weight:800;color:#fff
+    }
+    .queue-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+    .queue-toolbar select{max-width:320px}
+    .queue-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+    .queue-card{
+      border:1px solid var(--line2);border-radius:24px;padding:16px;
+      background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+      min-width:0;position:relative;overflow:hidden
+    }
+    .queue-card:before{content:"";position:absolute;left:-40px;top:-50px;width:120px;height:120px;border-radius:50%;background:rgba(245,203,92,.11)}
+    .queue-card h4{margin:0 0 8px;color:#fff;font-size:15px}
+    .queue-card p{margin:4px 0;color:var(--muted);font-size:12px;line-height:1.7}
+    .queue-score{font-size:28px;font-weight:900;color:var(--gold);direction:ltr;text-align:right}
+    .permission-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .permission-card{border:1px solid var(--line2);border-radius:22px;padding:14px;background:rgba(255,255,255,.045);line-height:1.9}
+    .permission-card h4{margin:0 0 8px;color:var(--gold)}
+    .guide-content{display:grid;gap:14px}.guide-step{border:1px solid var(--line2);border-radius:22px;background:rgba(255,255,255,.045);padding:16px;line-height:2}.guide-step h4{margin:0 0 8px;color:var(--gold)}
+    .seller-shell{display:grid;grid-template-columns:minmax(300px,.78fr) minmax(0,1.42fr);gap:16px}
+    .locked-note{padding:13px 14px;border:1px solid rgba(245,203,92,.24);border-radius:18px;background:rgba(245,203,92,.08);color:#FDEBB0;line-height:1.8;margin-bottom:12px}
+    @media(max-width:1080px){.queue-grid,.permission-grid,.seller-shell{grid-template-columns:1fr}.role-select{min-width:100%}}
+
+    @media(max-width:1360px){:root{--sidebar:238px}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.form-grid.wide{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:1080px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.nav{grid-template-columns:repeat(3,minmax(0,1fr));display:grid}.main{padding:14px}.lux-grid,.chart-grid,.split,.report-grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{align-items:flex-start}.form-grid.wide,.formula-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:680px){.topbar{display:grid}.nav{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis,.form-grid,.form-grid.wide,.formula-grid{grid-template-columns:1fr}.hero h3{font-size:26px}.panel-head{display:grid}.search{max-width:100%}table{min-width:680px}.top-actions{width:100%}.btn{flex:1}.main{padding:10px}.sidebar{padding:12px}.brand h1{font-size:14px}}
+    @media print{.sidebar,.top-actions,.form-panel{display:none!important}.app{display:block}.main{padding:0}body{background:white;color:#111}.panel,.card,.topbar{box-shadow:none;background:white;color:#111;border:1px solid #ddd}}
+
+    /* V5: Auth, KPI Studio, separated panels */
+    .app.locked{display:none!important}
+    .login-screen{min-height:100vh;display:grid;place-items:center;padding:24px;background:
+      radial-gradient(circle at 12% 18%,rgba(108,59,255,.28),transparent 28%),
+      radial-gradient(circle at 82% 12%,rgba(28,77,255,.24),transparent 30%),
+      radial-gradient(circle at 50% 92%,rgba(212,175,55,.16),transparent 36%),
+      linear-gradient(135deg,#02030a 0%,#070b15 42%,#050608 100%);overflow:auto}
+    .login-card{width:min(1040px,100%);display:grid;grid-template-columns:1.05fr .95fr;gap:18px;border:1px solid rgba(212,175,55,.28);border-radius:34px;padding:22px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.025));box-shadow:0 34px 120px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.08);backdrop-filter:blur(18px)}
+    .login-hero{padding:28px;border-radius:28px;background:linear-gradient(135deg,rgba(4,19,15,.86),rgba(3,12,31,.72));border:1px solid rgba(46,204,113,.22);position:relative;overflow:hidden}
+    .login-hero:before{content:"";position:absolute;inset:-70px auto auto -70px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.45),transparent 66%)}
+    .login-hero h1{font-size:clamp(28px,4vw,54px);line-height:1.12;margin:12px 0;color:#fff;letter-spacing:-1px}
+    .login-hero p{color:var(--muted);font-size:15px;line-height:2}
+    .login-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.login-badges span,.user-chip{border:1px solid rgba(212,175,55,.25);background:rgba(255,255,255,.05);border-radius:999px;padding:9px 13px;color:#f8e9b0;font-weight:800;font-size:12px}
+    .login-form{padding:26px;border-radius:28px;background:rgba(2,5,13,.82);border:1px solid rgba(255,255,255,.08)}
+    .login-form h2{margin:0 0 8px}.login-form label{display:block;margin:14px 0 8px;color:#cbd3e8;font-weight:800}.login-form input{width:100%;box-sizing:border-box}.login-error{min-height:22px;color:#ff8585;font-weight:800;margin-top:10px}.demo-users{margin-top:14px;display:grid;gap:8px}.demo-users code{direction:ltr;unicode-bidi:plaintext;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);padding:8px 10px;border-radius:12px;color:#dfe8ff;display:block}.login-note{margin-top:14px;color:#97a3ba;font-size:12px;line-height:1.9}.top-actions{align-items:center}.user-chip{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(25,49,104,.2))}
+    .kpi-studio-layout{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(0,1.3fr);gap:16px}.kpi-catalog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.kpi-def-card{border:1px solid rgba(212,175,55,.22);border-radius:20px;padding:14px;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));box-shadow:inset 0 1px rgba(255,255,255,.05)}.kpi-def-card h4{margin:0 0 8px;color:#fff}.kpi-def-card .value{font-size:22px;font-weight:950;color:#f7dc7b}.kpi-def-card .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.kpi-def-card .formula{color:#90a0bb;font-size:11px;line-height:1.8;margin-top:8px}.kpi-form-grid,.definition-form-grid,.check-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi-form-grid label,.definition-form-grid label,.check-form-grid label{display:grid;gap:7px;color:#cbd3e8;font-weight:850;font-size:12px}.kpi-form-grid .full,.definition-form-grid .full,.check-form-grid .full{grid-column:1/-1}.metric-helper{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);border-radius:16px;padding:12px;color:#aab5cb;line-height:1.9;font-size:12px}.access-matrix{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.access-card{border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:14px;background:rgba(255,255,255,.035)}.access-card h4{margin:0 0 8px;color:#f6db86}.access-card p{color:#aeb9ce;line-height:1.8;font-size:12px}.status-good{color:#5ff0a6}.status-warn{color:#f6db86}.status-bad{color:#ff8585}
+    @media(max-width:1120px){.kpi-studio-layout{grid-template-columns:1fr}.kpi-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}.access-matrix{grid-template-columns:repeat(2,minmax(0,1fr))}.login-card{grid-template-columns:1fr}}
+    @media(max-width:680px){.kpi-catalog,.kpi-form-grid,.definition-form-grid,.check-form-grid,.access-matrix{grid-template-columns:1fr}.login-card{padding:12px;border-radius:24px}.login-hero,.login-form{padding:18px;border-radius:22px}.user-chip{width:100%;justify-content:center}}
+
+
+    .kpi-engine-status{display:inline-flex;gap:8px;align-items:center}.no-data{border:1px dashed rgba(212,175,55,.32);border-radius:18px;padding:18px;color:#f7dc7b;background:rgba(212,175,55,.055);text-align:center;font-weight:850;line-height:1.9}.kpi-catalog{margin-top:14px}
+
+  </style>
+</head>
+<body>
+<section id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-hero">
+      <span class="eyebrow">Secure Command Entry</span>
+      <h1>ورود به پنل اختصاصی پیش‌فروش موبایل</h1>
+      <p>در نسخه اصلی، هر نقش از همان ابتدا با نام کاربری و رمز عبور خودش وارد پنل جداگانه می‌شود. فروشنده فقط ثبت مشتری خودش را می‌بیند؛ مدیر مالی به فرمول‌ها، KPIها، چک‌ها و گزارش‌های مالی دسترسی دارد؛ مدیریت کل دسترسی کامل دارد.</p>
+      <div class="login-badges"><span>Role Based Access</span><span>KPI Engine</span><span>Audit Ready</span><span>Luxury Finance CRM</span></div>
+    </div>
+    <form class="login-form" id="loginForm">
+      <h2>ورود کاربر</h2>
+      <p class="muted">برای تست نسخه فعلی از حساب‌های نمایشی زیر استفاده کن.</p>
+      <label>نام کاربری<input name="username" autocomplete="username" placeholder="ceo" required></label>
+      <label>رمز عبور<input name="password" type="password" autocomplete="current-password" placeholder="1234" required></label>
+      <button class="btn primary" style="width:100%;margin-top:12px">ورود به پنل</button>
+      <div class="login-error" id="loginError"></div>
+      <div class="demo-users">
+        <code>ceo / 1234 → مدیریت کل</code>
+        <code>finance / 1234 → مدیر مالی</code>
+        <code>seller1 / 1234 → فروشنده</code>
+        <code>contract / 1234 → کارشناس قرارداد</code>
+      </div>
+      <div class="login-note">این ورود در نسخه Demo داخل مرورگر است. در تولید واقعی باید با Backend، رمزنگاری، نشست امن، RBAC سروری و Audit Log پیاده‌سازی شود.</div>
+    </form>
+  </div>
+</section>
+
+<div class="app locked" id="appShell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">P</div><div><h1>Presale Command</h1><p>Luxury Finance CRM</p></div></div>
+    <nav class="nav" id="nav">
+      <button class="active" data-page="dashboard">داشبورد فرماندهی</button>
+      <button data-page="crm">CRM مشتریان</button>
+      <button data-page="sales">فروش و قرارداد</button>
+      <button data-page="transactions">دفتر تراکنش</button>
+      <button data-page="members">اعضا و پورسانت</button>
+      <button data-page="checks">چک‌ها</button>
+      <button data-page="debts">بدهی‌ها</button>
+      <button data-page="investments">سرمایه‌گذاری</button>
+      <button data-page="reports">گزارش KPI</button>
+      <button data-page="kpiStudio">KPI Studio</button>
+      <button data-page="queue">صف هشدار</button>
+      <button data-page="seller">پنل فروشنده</button>
+      <button data-page="formula">فرمول و هشدارها</button>
+      <button data-page="guide">راهنمای کامل</button>
+    </nav>
+    <div class="side-status"><b style="color:var(--gold)">Formula Engine فعال</b><br>همه محاسبات از قوانین قابل تغییر مدیر مالی خوانده می‌شوند.</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><h2 id="pageTitle">داشبورد فرماندهی</h2><p id="pageSubtitle">نمای لوکس، ریسپانسیو و فرمول‌محور برای مدیریت پیش‌فروش</p></div>
+      <div class="top-actions"><div class="user-chip" id="userChip">کاربر: —</div><button class="btn ghost" id="logoutBtn">خروج</button><button class="btn ghost" id="resetDemo">بازنشانی</button><button class="btn purple" id="printPage">چاپ</button><button class="btn primary" id="exportJson">خروجی JSON</button></div>
+    </header>
+
+    <section class="page active" id="dashboard">
+      <div class="lux-grid">
+        <div class="card hero"><span class="eyebrow">Royal Command Center</span><h3>سامانه مدیریتی پیش‌فروش موبایل</h3><p>تمام پول‌های ورودی، قراردادها، تحویل‌ها، چک‌ها، بدهی‌ها، پورسانت‌ها و سرمایه‌گذاری‌ها در یک موتور محاسباتی قابل تغییر به هم متصل شده‌اند.</p><div class="hero-pills" id="heroPills"></div></div>
+        <div class="card gauge-card"><canvas id="riskGauge"></canvas><span>عقربه ریسک کل سیستم</span></div>
+      </div>
+      <div class="kpis" id="kpiGrid"></div>
+      <div class="chart-grid">
+        <div class="panel chart"><div class="panel-head"><h3>جریان مالی</h3><span>ترکیب ارزش‌ها</span></div><canvas id="financeDonut"></canvas></div>
+        <div class="panel chart"><div class="panel-head"><h3>فروش محصول</h3><span>رتبه‌بندی دسته‌ها</span></div><canvas id="productBars"></canvas></div>
+        <div class="panel chart"><div class="panel-head"><h3>کیفیت KPI</h3><span>Achievement vs Risk</span></div><canvas id="kpiQuality"></canvas></div>
+        <div class="panel chart"><div class="panel-head"><h3>پورسانت اعضا</h3><span>ایجاد شده / پرداخت شده / مانده</span></div><canvas id="commissionChart"></canvas></div>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>هشدارهای فوری</h3><span>مرتب‌شده بر اساس ریسک</span></div><div class="table-wrap"><table id="alertsTable"></table></div></div>
+    </section>
+
+    <section class="page" id="crm"><div class="split"><form class="panel form-panel" id="customerForm"><div class="panel-head"><h3>ثبت مشتری</h3><span>CRM</span></div><div class="form-grid"><input name="name" placeholder="نام مشتری" required><input name="phone" placeholder="شماره تماس"><input name="city" placeholder="شهر"><input name="source" placeholder="منبع جذب"><select name="status"><option>فعال</option><option>VIP</option><option>در ریسک</option></select><input name="nextAction" placeholder="اقدام بعدی"></div><br><button class="btn primary">ثبت مشتری</button></form><div class="panel"><div class="panel-head"><h3>مشتریان</h3><input class="search" data-table-search="crmTable" placeholder="جستجو..."></div><div class="table-wrap"><table id="crmTable"></table></div></div></div></section>
+
+    <section class="page" id="sales">
+      <form class="panel form-panel" id="saleForm"><div class="panel-head"><h3>ثبت سفارش</h3><span>تخفیف روتاری و فرمول‌محور</span></div><div class="form-grid wide"><select name="customerId" id="saleCustomer"></select><select name="memberId" id="saleMember"></select><select name="category"><option>آیفون</option><option>سامسونگ</option><option>شیائومی</option><option>اپل واچ</option><option>ایرپاد</option><option>لوازم جانبی</option></select><input name="model" placeholder="مدل/شرح کالا" required><input name="quantity" type="number" min="1" value="1"><input name="marketPrice" type="number" placeholder="قیمت روز واحد"><input type="hidden" name="discount" id="discountInput" value="0.07"><div class="discount-rotor" id="discountRotor"></div><input name="contractNo" placeholder="شماره قرارداد"><select name="contractStatus"><option>امضا شده</option><option>در انتظار امضا</option><option>ناقص</option><option>بدون قرارداد</option><option>ریسک حقوقی</option></select><input name="deliveryDate" type="date"><select name="orderStatus"><option>ثبت شده</option><option>در حال تامین</option><option>آماده تحویل</option><option>تحویل شده</option></select><input name="nextAction" placeholder="اقدام بعدی"></div><br><button class="btn primary">ثبت سفارش</button></form>
+      <div class="panel"><div class="panel-head"><h3>فروش و قراردادها</h3><input class="search" data-table-search="salesTable" placeholder="جستجو..."></div><div class="table-wrap"><table id="salesTable"></table></div></div>
+    </section>
+
+    <section class="page" id="transactions"><form class="panel form-panel" id="transactionForm"><div class="panel-head"><h3>ثبت تراکنش</h3><span>قلب حسابداری</span></div><div class="form-grid wide"><select name="type"><option>دریافت از مشتری</option><option>برگشت وجه مشتری</option><option>پرداخت پورسانت</option><option>هزینه ثابت</option><option>پرداخت بدهی</option><option>سرمایه‌گذاری</option><option>برداشت از سرمایه‌گذاری</option></select><select name="accountId" id="trxAccount"></select><input name="party" placeholder="طرف حساب"><select name="customerId" id="trxCustomer"></select><select name="memberId" id="trxMember"></select><select name="orderId" id="trxOrder"></select><input name="debtId" placeholder="کد بدهی"><input name="investmentId" placeholder="کد سرمایه‌گذاری"><input name="inflow" type="number" placeholder="ورودی"><input name="outflow" type="number" placeholder="خروجی"><select name="method"><option>نقدی</option><option>کارت به کارت</option><option>حواله بانکی</option><option>چک</option><option>ترکیبی</option></select><input name="checkId" placeholder="شناسه چک"><input name="note" placeholder="توضیح"></div><br><button class="btn primary">ثبت تراکنش</button></form><div class="panel"><div class="panel-head"><h3>دفتر تراکنش‌ها</h3><input class="search" data-table-search="transactionsTable" placeholder="جستجو..."></div><div class="table-wrap"><table id="transactionsTable"></table></div></div></section>
+
+    <section class="page" id="members"><div class="panel"><div class="panel-head"><h3>اعضا و پورسانت</h3><span>فرمول‌های متصل</span></div><div class="table-wrap"><table id="membersTable"></table></div></div></section>
+    <section class="page" id="checks">
+      <form class="panel form-panel" id="checkForm">
+        <div class="panel-head"><h3>ثبت چک</h3><span>شماره چک اجباری است و وارد صف هشدار می‌شود</span></div>
+        <div class="check-form-grid">
+          <label>نوع چک<select name="type"><option>دریافتی</option><option>پرداختی</option></select></label>
+          <label>شماره چک<input name="number" placeholder="شماره یکتا" required></label>
+          <label>بانک<input name="bank" placeholder="نام بانک"></label>
+          <label>طرف حساب<input name="party" placeholder="نام مشتری / تامین‌کننده" required></label>
+          <label>ارجاع<input name="refId" placeholder="کد سفارش / بدهی / تراکنش"></label>
+          <label>تاریخ صدور<input name="issueDate" type="date"></label>
+          <label>سررسید<input name="dueDate" type="date" required></label>
+          <label>مبلغ<input name="amount" type="number" required></label>
+          <label>وضعیت<select name="status"><option>ثبت شده</option><option>در انتظار وصول</option><option>وصول شده</option><option>برگشت خورده</option><option>خرج شده</option></select></label>
+        </div><br><button class="btn primary">ثبت چک</button>
+      </form>
+      <div class="panel"><div class="panel-head"><h3>چک‌ها</h3><span>شماره، سررسید و هشدار وصول</span></div><div class="table-wrap"><table id="checksTable"></table></div></div>
+    </section>
+    <section class="page" id="debts"><div class="panel"><div class="panel-head"><h3>بدهی‌ها</h3><span>تعهدات و معوقات</span></div><div class="table-wrap"><table id="debtsTable"></table></div></div></section>
+    <section class="page" id="investments"><div class="panel"><div class="panel-head"><h3>سرمایه‌گذاری</h3><span>ROI و سود/زیان</span></div><div class="table-wrap"><table id="investmentsTable"></table></div></div></section>
+    <section class="page" id="reports"><div class="report-grid"><div class="panel"><div class="panel-head"><h3>گزارش مالی</h3></div><div id="financialReport"></div></div><div class="panel"><div class="panel-head"><h3>گزارش عملیات</h3></div><div id="operationReport"></div></div><div class="panel"><div class="panel-head"><h3>گزارش ریسک و KPI</h3></div><div id="riskReport"></div></div></div><div class="panel" style="margin-top:16px"><div class="panel-head"><h3>گزارش کامل KPIهای تعریف‌شده</h3><span>تعاریف توسط مدیر مالی یا مدیریت کل قابل تغییر و ایجاد است</span></div><div class="table-wrap"><table id="kpiReportTable"></table></div></div></section>
+
+
+
+    <section class="page" id="kpiStudio">
+      <div class="kpi-studio-layout">
+        <form class="panel form-panel" id="kpiForm">
+          <div class="panel-head"><h3>KPI Studio</h3><span>تعریف شاخص جدید توسط مدیر مالی / مدیریت کل</span></div>
+          <div class="kpi-form-grid">
+            <label>نام KPI<input name="title" placeholder="مثلاً نرخ وصول وجه" required></label>
+            <label>گروه<select name="group"><option>مالی</option><option>فروش</option><option>عملیات</option><option>ریسک</option><option>قرارداد</option><option>چک</option><option>سرمایه‌گذاری</option></select></label>
+            <label class="full">منبع محاسبه<select name="metric" id="kpiMetricSelect"></select></label>
+            <label>هدف<input name="target" type="number" placeholder="عدد هدف" required></label>
+            <label>جهت موفقیت<select name="direction"><option value="higher">هرچه بیشتر بهتر</option><option value="lower">هرچه کمتر بهتر</option></select></label>
+            <label>واحد<select name="unit"><option>تومان</option><option>٪</option><option>عدد</option><option>امتیاز</option></select></label>
+            <label>مرز هشدار<input name="warning" type="number" placeholder="مرز زرد"></label>
+            <label>مرز بحرانی<input name="critical" type="number" placeholder="مرز قرمز"></label>
+            <label class="full">سطح نمایش<select name="visibility"><option value="admin,finance">مدیریت کل و مدیر مالی</option><option value="admin,finance,seller">مدیران + فروشنده</option><option value="admin,finance,contract">مدیران + قرارداد</option><option value="admin">فقط مدیریت کل</option></select></label>
+          </div>
+          <div class="metric-helper" id="metricHelper">KPIها به داده‌های فروش، تراکنش، چک، بدهی، سرمایه‌گذاری و قرارداد وصل هستند.</div><br>
+          <button class="btn primary">ایجاد KPI جدید</button>
+        </form>
+        <div class="panel">
+          <div class="panel-head"><h3>کاتالوگ KPIهای فعال</h3><span id="kpiEngineStatus">وضعیت زنده بر اساس فرمول‌ها</span></div>
+          <canvas id="kpiStudioChart" class="chart" height="260" aria-label="نمودار KPI Studio"></canvas>
+          <div class="kpi-catalog" id="kpiCatalog"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px"><div class="panel-head"><h3>تعاریف KPI</h3><span>مدیر مالی می‌تواند تعاریف جدید بسازد</span></div><div class="table-wrap"><table id="kpiDefinitionsTable"></table></div></div>
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-head"><h3>تعاریف مدیریتی قابل توسعه</h3><span>تعریف قانون، وضعیت، دسته، نوع تراکنش یا فرمول جدید</span></div>
+        <form id="definitionForm" class="definition-form-grid">
+          <label>نوع تعریف<select name="type"><option>فرمول KPI</option><option>قانون هشدار</option><option>دسته محصول</option><option>وضعیت قرارداد</option><option>نوع تراکنش</option><option>نقش سازمانی</option></select></label>
+          <label>کد تعریف<input name="code" placeholder="مثلاً KPI-COLLECTION" required></label>
+          <label>عنوان<input name="title" placeholder="عنوان فارسی" required></label>
+          <label>گروه<input name="group" placeholder="مالی / عملیات / ریسک"></label>
+          <label class="full">فرمول یا توضیح<input name="formula" placeholder="مثلاً received / salesTotal * 100"></label>
+          <label>وضعیت<select name="status"><option>فعال</option><option>پیشنویس</option><option>غیرفعال</option></select></label>
+          <label>مالک تعریف<select name="ownerRole"><option value="finance">مدیر مالی</option><option value="admin">مدیریت کل</option></select></label>
+          <div class="full"><button class="btn purple">ثبت تعریف جدید</button></div>
+        </form>
+        <br><div class="table-wrap"><table id="definitionsTable"></table></div>
+      </div>
+      <div class="panel" style="margin-top:16px"><div class="panel-head"><h3>نقشه دسترسی پنل‌ها</h3><span>در تولید واقعی از سمت سرور enforce می‌شود</span></div><div class="access-matrix"><div class="access-card"><h4>مدیریت کل</h4><p>دسترسی کامل به همه پنل‌ها، کاربران، KPIها، فرمول‌ها و گزارش‌ها.</p></div><div class="access-card"><h4>مدیر مالی</h4><p>تعریف KPI، چک، تراکنش، بدهی، سرمایه‌گذاری، پورسانت، گزارش و هشدار.</p></div><div class="access-card"><h4>فروشنده</h4><p>فقط ثبت مشتری و مشاهده مشتری‌های خودش. بدون دسترسی مالی.</p></div><div class="access-card"><h4>کارشناس قرارداد</h4><p>مشاهده مشتری، سفارش و ریسک قرارداد؛ بدون دسترسی نقدینگی و سرمایه‌گذاری.</p></div></div></div>
+    </section>
+
+    <section class="page" id="queue">
+      <div class="panel">
+        <div class="panel-head"><h3>صف هشدار هوشمند</h3><span>هشدارها به صورت خودکار محاسبه و با چیدمان‌های مختلف مرتب می‌شوند</span></div>
+        <div class="queue-toolbar">
+          <select id="queueSortMode">
+            <option value="risk">مرتب‌سازی بر اساس ریسک کل</option>
+            <option value="delivery">مرتب‌سازی بر اساس نزدیک‌ترین تحویل</option>
+            <option value="balance">مرتب‌سازی بر اساس بیشترین مانده مالی</option>
+            <option value="contract">مرتب‌سازی بر اساس ریسک قرارداد</option>
+            <option value="checks">مرتب‌سازی بر اساس سررسید چک</option>
+            <option value="debts">مرتب‌سازی بر اساس سررسید بدهی</option>
+          </select>
+          <button class="btn primary" id="refreshQueue">به‌روزرسانی صف</button>
+          <span class="pill">Auto Queue فعال است</span>
+        </div>
+        <div class="queue-grid" id="queueCards"></div>
+        <div class="table-wrap"><table id="queueTable"></table></div>
+      </div>
+    </section>
+
+    <section class="page" id="seller">
+      <div class="seller-shell">
+        <form class="panel form-panel" id="sellerCustomerForm">
+          <div class="panel-head"><h3>پنل فروشنده / کارشناس</h3><span>ثبت مشتری بدون دسترسی مالی</span></div>
+          <div class="locked-note">این بخش برای فروشنده‌هاست. در نسخه واقعی، فروشنده فقط به ثبت مشتری و مشاهده مشتری‌های خودش دسترسی دارد؛ نه داشبورد مالی، نه پورسانت کل، نه بدهی، نه چک و نه سرمایه‌گذاری.</div>
+          <div class="form-grid">
+            <input name="name" placeholder="نام مشتری" required>
+            <input name="phone" placeholder="شماره تماس">
+            <input name="city" placeholder="شهر">
+            <input name="source" placeholder="منبع جذب">
+            <select name="status"><option>لید جدید</option><option>پیگیری اول</option><option>علاقه‌مند</option><option>در انتظار تصمیم</option></select>
+            <input name="nextAction" placeholder="اقدام بعدی">
+          </div>
+          <br><button class="btn primary">ثبت مشتری توسط فروشنده</button>
+        </form>
+        <div class="panel">
+          <div class="panel-head"><h3>مشتری‌های ثبت‌شده توسط پنل فروشنده</h3><span>نمای محدود</span></div>
+          <div class="table-wrap"><table id="sellerCustomersTable"></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="guide">
+      <div class="panel">
+        <div class="panel-head"><h3>راهنمای کامل استفاده و توسعه</h3><span>اجرایی، مدیریتی و فنی</span></div>
+        <div class="guide-content">
+          <div class="guide-step"><h4>۱. آیا این نسخه قابل اجراست؟</h4><p>بله. فایل <b>index.html</b> را مستقیم در مرورگر باز کن. این نسخه بدون نصب و بدون اینترنت اجرا می‌شود و داده‌ها را در LocalStorage مرورگر ذخیره می‌کند. برای نسخه سازمانی باید روی هاست یا سرور deploy شود و به دیتابیس وصل شود.</p></div>
+          <div class="guide-step"><h4>۲. صف هشدار چطور کار می‌کند؟</h4><p>هشدارها از سفارش‌ها، تاریخ تحویل، مانده مالی، قرارداد ناقص، چک‌ها و بدهی‌ها ساخته می‌شوند. صف هشدار به صورت خودکار بر اساس ریسک مرتب می‌شود و از منوی بالای صف می‌توانی چیدمان را به نزدیک‌ترین تحویل، بیشترین مانده، ریسک قرارداد، سررسید چک یا سررسید بدهی تغییر بدهی.</p></div>
+          <div class="guide-step"><h4>۳. Formula Studio چیست؟</h4><p>مدیر مالی می‌تواند وزن‌های ریسک، روزهای هشدار، درصدهای تخفیف روتاری، هدف فروش و حد مجاز مانده/ریسک را تغییر دهد. تمام KPIها و هشدارها بعد از ذخیره فرمول‌ها با همان قوانین جدید محاسبه می‌شوند.</p></div>
+          <div class="guide-step"><h4>۴. پنل فروشنده چه دسترسی دارد؟</h4><p>فروشنده فقط می‌تواند مشتری ثبت کند و لیست محدود مشتری‌های ثبت‌شده از پنل خودش را ببیند. اطلاعات حساس مثل جریان مالی، چک، بدهی، سرمایه‌گذاری، گزارش KPI و فرمول‌ها برای فروشنده مخفی می‌شود. این کنترل در نسخه فعلی Frontend Demo است؛ در نسخه Production باید در Backend هم enforced شود.</p></div>
+          <div class="guide-step"><h4>۵. مسیر استفاده روزانه</h4><p>مدیر مالی اول داشبورد را می‌بیند، بعد صف هشدار را بر اساس ریسک بررسی می‌کند، سپس چک‌ها و بدهی‌ها را کنترل می‌کند، بعد Formula Studio را در صورت نیاز تنظیم می‌کند. فروشنده‌ها هم از پنل فروشنده فقط لید و مشتری ثبت می‌کنند.</p></div>
+          <div class="guide-step"><h4>۶. مسیر توسعه حرفه‌ای</h4><p>مرحله بعدی: Backend با NestJS یا FastAPI، دیتابیس PostgreSQL، احراز هویت، نقش‌ها و سطح دسترسی، Audit Log، Import/Export Excel، هشدار Telegram/SMS/Email، آپلود قرارداد، و پنل جدا برای مدیر مالی، فروشنده، قرارداد و مدیر کل.</p></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>ماتریس دسترسی پیشنهادی</h3><span>برای نسخه Production</span></div>
+        <div class="permission-grid">
+          <div class="permission-card"><h4>مدیر کل</h4>همه داشبوردها، همه گزارش‌ها، فرمول‌ها، کاربران، لاگ‌ها و تنظیمات.</div>
+          <div class="permission-card"><h4>مدیر مالی</h4>داشبورد مالی، تراکنش‌ها، چک، بدهی، سرمایه‌گذاری، پورسانت، KPI و Formula Studio.</div>
+          <div class="permission-card"><h4>فروشنده</h4>فقط ثبت مشتری، ثبت لید، مشاهده مشتری‌های خودش و اقدام بعدی.</div>
+          <div class="permission-card"><h4>کارشناس قرارداد</h4>مشاهده مشتری و سفارش مرتبط، وضعیت قرارداد، آپلود/پیگیری قرارداد، بدون اطلاعات حساس مالی.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="formula">
+      <div class="panel"><div class="panel-head"><h3>Formula Studio مدیر مالی</h3><span>فرمول‌ها، هشدارها، تخفیف روتاری و KPIها قابل تغییر هستند</span></div>
+        <div class="formula-grid">
+          <div class="formula-card"><h4>هشدار تحویل</h4><label>روز هشدار نزدیک<input id="nearDeliveryDays" type="number"></label><label>روز هشدار بحرانی<input id="criticalDeliveryDays" type="number"></label><div class="formula-line">deliveryAlert = days&lt;0 ? overdue : days&lt;=critical ? critical : days&lt;=near ? near : normal</div></div>
+          <div class="formula-card"><h4>وزن ریسک سفارش</h4><label>عقب‌افتاده<input id="riskOverdue" type="number"></label><label>بحرانی<input id="riskCritical" type="number"></label><label>نزدیک<input id="riskNear" type="number"></label><label>مانده مالی<input id="riskBalance" type="number"></label><label>قرارداد ناقص<input id="riskContract" type="number"></label></div>
+          <div class="formula-card"><h4>چک و بدهی</h4><label>هشدار چک<input id="checkWarningDays" type="number"></label><label>هشدار بدهی<input id="debtWarningDays" type="number"></label><label>وزن چک بحرانی<input id="riskCheck" type="number"></label><label>وزن بدهی بحرانی<input id="riskDebt" type="number"></label></div>
+          <div class="formula-card"><h4>تخفیف روتاری</h4><label>درصدهای مجاز؛ با ویرگول جدا کن<input id="discountOptionsText" placeholder="7,14,16,25,27,29"></label><div class="formula-line">finalPrice = marketPrice × (1 - selectedDiscount)</div><button class="btn emerald" id="saveFormula">ذخیره فرمول‌ها</button></div>
+        </div>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>تعریف کیفیت KPI</h3><span>هدف‌ها قابل تنظیم‌اند</span></div><div class="formula-grid"><div class="formula-card"><h4>هدف فروش</h4><label>Target Revenue<input id="targetRevenue" type="number"></label></div><div class="formula-card"><h4>حد مانده مشتری</h4><label>Max Customer Balance<input id="maxCustomerBalance" type="number"></label></div><div class="formula-card"><h4>حد ریسک قابل قبول</h4><label>Max Risk Score<input id="maxRiskScore" type="number"></label></div><div class="formula-card"><h4>فرمول کیفیت</h4><div class="formula-line">quality = revenueAchievement - balancePenalty - riskPenalty</div></div></div></div>
+    </section>
+  </main>
+</div>
+
+<script>
+window.addEventListener("error",e=>{console.error(e.error||e.message);const b=document.createElement("div");b.style.cssText="position:fixed;left:14px;bottom:14px;z-index:9999;background:#7f1d1d;color:white;border:1px solid #fca5a5;border-radius:14px;padding:12px 14px;font:12px Tahoma;max-width:420px";b.textContent="خطای اجرا: "+(e.message||"Unknown");document.body.appendChild(b)});
+const SEED={
+ settings:{nearDeliveryDays:14,criticalDeliveryDays:5,checkWarningDays:7,debtWarningDays:7},
+ formulas:{discountOptions:[0.07,0.14,0.16,0.25,0.27,0.29],risk:{overdue:45,critical:30,near:15,balance:20,contract:20,checkCritical:8,debtCritical:8},targets:{revenue:500000000,maxCustomerBalance:150000000,maxRiskScore:55}},
+ accounts:[{id:"ACC-01",name:"حساب اصلی شرکت",type:"بانکی",opening:150000000},{id:"ACC-02",name:"صندوق نقدی",type:"نقدی",opening:25000000},{id:"ACC-03",name:"صندوق چک‌ها",type:"چک",opening:0},{id:"ACC-04",name:"صندوق سرمایه‌گذاری",type:"سرمایه‌گذاری",opening:0},{id:"ACC-05",name:"صندوق پورسانت اعضا",type:"داخلی",opening:0},{id:"ACC-06",name:"صندوق بدهی و تعهدات",type:"داخلی",opening:0}],
+ customers:[{id:"CUS-001",name:"علی رضایی",phone:"09120000001",city:"تهران",source:"اینستاگرام",status:"فعال",nextAction:"پیگیری تحویل آیفون"},{id:"CUS-002",name:"سارا محمدی",phone:"09120000002",city:"اصفهان",source:"معرف",status:"VIP",nextAction:"بررسی قرارداد"},{id:"CUS-003",name:"مانی کریمی",phone:"09120000003",city:"شیراز",source:"تبلیغات",status:"فعال",nextAction:"وصول چک"}],
+ members:[{id:"MEM-001",name:"رضا احمدی",role:"فروشنده",commissionRate:.02,status:"فعال"},{id:"MEM-002",name:"مهسا اکبری",role:"مدیر فروش",commissionRate:.012,status:"فعال"},{id:"MEM-003",name:"نیما سلیمانی",role:"معرف",commissionRate:.01,status:"فعال"},{id:"MEM-004",name:"الهام نوری",role:"مدیر قرارداد",commissionRate:.006,status:"فعال"}],
+ sales:[{id:"ORD-1001",customerId:"CUS-001",date:"2026-06-01",category:"آیفون",model:"iPhone 16 Pro Max 256GB",quantity:2,marketPrice:93000000,discount:.14,memberId:"MEM-001",contractNo:"CON-1001",contractStatus:"امضا شده",deliveryDate:"2026-06-24",orderStatus:"ثبت شده",nextAction:"تماس با تامین‌کننده"},{id:"ORD-1002",customerId:"CUS-002",date:"2026-06-03",category:"آیفون",model:"iPhone 15 Pro 128GB",quantity:1,marketPrice:76000000,discount:.07,memberId:"MEM-002",contractNo:"CON-1002",contractStatus:"در انتظار امضا",deliveryDate:"2026-06-20",orderStatus:"ثبت شده",nextAction:"تکمیل قرارداد"},{id:"ORD-1003",customerId:"CUS-003",date:"2026-06-05",category:"سامسونگ",model:"Galaxy S25 Ultra 512GB",quantity:1,marketPrice:69000000,discount:.25,memberId:"MEM-003",contractNo:"CON-1003",contractStatus:"ناقص",deliveryDate:"2026-06-18",orderStatus:"ثبت شده",nextAction:"پیگیری چک"}],
+ transactions:[{id:"TRX-1001",date:"2026-06-01",accountId:"ACC-01",type:"دریافت از مشتری",party:"علی رضایی",customerId:"CUS-001",memberId:"",orderId:"ORD-1001",debtId:"",investmentId:"",inflow:50000000,outflow:0,method:"نقدی",checkId:"",note:"پیش‌پرداخت"},{id:"TRX-1002",date:"2026-06-01",accountId:"ACC-03",type:"دریافت از مشتری",party:"علی رضایی",customerId:"CUS-001",memberId:"",orderId:"ORD-1001",debtId:"",investmentId:"",inflow:200000000,outflow:0,method:"چک",checkId:"CHK-1001",note:"چک مشتری"},{id:"TRX-1003",date:"2026-06-03",accountId:"ACC-01",type:"دریافت از مشتری",party:"سارا محمدی",customerId:"CUS-002",memberId:"",orderId:"ORD-1002",debtId:"",investmentId:"",inflow:45000000,outflow:0,method:"حواله بانکی",checkId:"",note:"پرداخت اول"},{id:"TRX-1004",date:"2026-06-05",accountId:"ACC-01",type:"دریافت از مشتری",party:"مانی کریمی",customerId:"CUS-003",memberId:"",orderId:"ORD-1003",debtId:"",investmentId:"",inflow:35000000,outflow:0,method:"کارت به کارت",checkId:"",note:"پرداخت اولیه"},{id:"TRX-1005",date:"2026-06-08",accountId:"ACC-05",type:"پرداخت پورسانت",party:"رضا احمدی",customerId:"",memberId:"MEM-001",orderId:"ORD-1001",debtId:"",investmentId:"",inflow:0,outflow:2000000,method:"حواله بانکی",checkId:"",note:"پورسانت مرحله اول"},{id:"TRX-1006",date:"2026-06-09",accountId:"ACC-01",type:"هزینه ثابت",party:"اجاره دفتر",customerId:"",memberId:"",orderId:"",debtId:"",investmentId:"",inflow:0,outflow:30000000,method:"حواله بانکی",checkId:"",note:"اجاره ماهانه"},{id:"TRX-1007",date:"2026-06-10",accountId:"ACC-01",type:"سرمایه‌گذاری",party:"صندوق سرمایه‌گذاری داخلی",customerId:"",memberId:"",orderId:"",debtId:"",investmentId:"INV-001",inflow:0,outflow:50000000,method:"حواله بانکی",checkId:"",note:"سرمایه‌گذاری نقدی"},{id:"TRX-1008",date:"2026-06-11",accountId:"ACC-06",type:"پرداخت بدهی",party:"تامین‌کننده A",customerId:"",memberId:"",orderId:"",debtId:"DEBT-001",investmentId:"",inflow:0,outflow:25000000,method:"حواله بانکی",checkId:"",note:"تسویه بخشی بدهی تامین‌کننده"}],
+ checks:[{id:"CHK-1001",type:"دریافتی",transactionId:"TRX-1002",refId:"ORD-1001",party:"علی رضایی",bank:"ملت",number:"123456",issueDate:"2026-06-01",dueDate:"2026-06-25",amount:200000000,status:"در انتظار وصول"},{id:"CHK-1002",type:"پرداختی",transactionId:"",refId:"DEBT-001",party:"تامین‌کننده A",bank:"ملی",number:"998877",issueDate:"2026-06-04",dueDate:"2026-06-19",amount:80000000,status:"ثبت شده"}],
+ expenses:[{id:"EXP-001",title:"اجاره دفتر",category:"اداری",monthlyAmount:30000000,dueDay:10,owner:"مدیر مالی",status:"فعال"},{id:"EXP-002",title:"حقوق تیم پشتیبانی",category:"حقوق",monthlyAmount:85000000,dueDay:28,owner:"مدیر مالی",status:"فعال"},{id:"EXP-003",title:"اینترنت و نرم‌افزارها",category:"زیرساخت",monthlyAmount:12000000,dueDay:15,owner:"مدیر عملیات",status:"فعال"}],
+ debts:[{id:"DEBT-001",creditor:"تامین‌کننده A",type:"تامین‌کننده",description:"خرید عمده آیفون",principal:180000000,createdAt:"2026-06-01",dueDate:"2026-06-27",status:"فعال"},{id:"DEBT-002",creditor:"بانک",type:"بانکی",description:"تسهیلات کوتاه‌مدت",principal:120000000,createdAt:"2026-06-04",dueDate:"2026-07-10",status:"فعال"}],
+ investments:[{id:"INV-001",title:"سرمایه‌گذاری کوتاه‌مدت تامین کالا",source:"ACC-04",startDate:"2026-06-10",currentValue:56000000,status:"فعال",exitTarget:"2026-07-10"},{id:"INV-002",title:"ذخیره سود عملیاتی",source:"ACC-04",startDate:"2026-06-12",currentValue:0,status:"در انتظار تصمیم",exitTarget:"2026-08-01"}]
+};
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)], fmt=new Intl.NumberFormat("fa-IR"), money=n=>fmt.format(Math.round(Number(n||0))), pct=n=>`${Math.round(Number(n||0)*1000)/10}%`;
+const storage=(()=>{try{const t="__presale_storage_test__";window.localStorage.setItem(t,"1");window.localStorage.removeItem(t);return window.localStorage}catch(e){const mem={};return{getItem:k=>Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null,setItem:(k,v)=>{mem[k]=String(v)},removeItem:k=>{delete mem[k]},clear:()=>{Object.keys(mem).forEach(k=>delete mem[k])}}}})();
+const KEY="presale-luxury-v6-final-ready"; let state=load(); migrateState(); function clone(o){return JSON.parse(JSON.stringify(o))}
+function migrateState(){
+  state.users = [
+    {id:"USR-ADMIN",name:"مدیر کل",role:"admin",username:"ceo",password:"1234"},
+    {id:"USR-FIN",name:"مدیر مالی",role:"finance",username:"finance",password:"1234"},
+    {id:"USR-SELL-001",name:"فروشنده یک",role:"seller",username:"seller1",password:"1234"},
+    {id:"USR-CONTRACT",name:"کارشناس قرارداد",role:"contract",username:"contract",password:"1234"}
+  ];
+  state.sessionUserId = state.sessionUserId || "";
+  state.sessionRole = state.sessionRole || "admin";
+  state.currentSellerId = state.currentSellerId || "USR-SELL-001";
+  state.customers.forEach((c,i)=>{ if(!c.ownerId) c.ownerId = i<3 ? "USR-SELL-001" : state.currentSellerId; });
+  state.kpiDefinitions = Array.isArray(state.kpiDefinitions) && state.kpiDefinitions.some(k=>k && k.metric && k.title) ? state.kpiDefinitions : defaultKpis();
+  state.financeDefinitions = Array.isArray(state.financeDefinitions) && state.financeDefinitions.length ? state.financeDefinitions : defaultFinanceDefinitions();
+}
+function load(){let s;try{s=JSON.parse(storage.getItem(KEY))}catch(e){};s=s||clone(SEED);s.formulas=s.formulas||clone(SEED.formulas);s.formulas.discountOptions=s.formulas.discountOptions||clone(SEED.formulas.discountOptions);s.formulas.targets=s.formulas.targets||clone(SEED.formulas.targets);return s}
+function save(){storage.setItem(KEY,JSON.stringify(state))}
+function by(a,id){return a.find(x=>x.id===id)||{}}
+function sum(a,f){return a.reduce((t,x)=>t+Number(f(x)||0),0)}
+function next(prefix,arr){return `${prefix}-${String(arr.length+1001).padStart(4,"0")}`}
+function days(d){if(!d)return 9999;let x=new Date(d+"T00:00:00"), n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getDate());return Math.ceil((x-n)/86400000)}
+
+function defaultKpis(){return [
+  {id:"KPI-001",title:"ارزش کل فروش",group:"مالی",metric:"salesTotal",target:500000000,direction:"higher",unit:"تومان",warning:350000000,critical:200000000,visibility:"admin,finance"},
+  {id:"KPI-002",title:"نرخ وصول وجه",group:"مالی",metric:"collectionRate",target:80,direction:"higher",unit:"٪",warning:60,critical:40,visibility:"admin,finance"},
+  {id:"KPI-003",title:"مانده قابل دریافت",group:"مالی",metric:"customerBalance",target:150000000,direction:"lower",unit:"تومان",warning:180000000,critical:250000000,visibility:"admin,finance"},
+  {id:"KPI-004",title:"نقدینگی کل",group:"مالی",metric:"liquidity",target:300000000,direction:"higher",unit:"تومان",warning:180000000,critical:90000000,visibility:"admin,finance"},
+  {id:"KPI-005",title:"مانده پورسانت",group:"پورسانت",metric:"commissionBalance",target:25000000,direction:"lower",unit:"تومان",warning:35000000,critical:50000000,visibility:"admin,finance"},
+  {id:"KPI-006",title:"بدهی مانده",group:"بدهی",metric:"debtBalance",target:200000000,direction:"lower",unit:"تومان",warning:260000000,critical:350000000,visibility:"admin,finance"},
+  {id:"KPI-007",title:"تعداد سفارش فعال",group:"فروش",metric:"activeOrders",target:20,direction:"higher",unit:"عدد",warning:10,critical:5,visibility:"admin,finance,seller"},
+  {id:"KPI-008",title:"میانگین تخفیف",group:"فروش",metric:"avgDiscount",target:20,direction:"lower",unit:"٪",warning:24,critical:29,visibility:"admin,finance"},
+  {id:"KPI-009",title:"قراردادهای ناقص",group:"قرارداد",metric:"incompleteContracts",target:0,direction:"lower",unit:"عدد",warning:2,critical:5,visibility:"admin,finance,contract"},
+  {id:"KPI-010",title:"سفارش‌های بحرانی",group:"عملیات",metric:"criticalOrders",target:0,direction:"lower",unit:"عدد",warning:2,critical:5,visibility:"admin,finance,contract"},
+  {id:"KPI-011",title:"چک‌های در خطر",group:"چک",metric:"riskyChecks",target:0,direction:"lower",unit:"عدد",warning:1,critical:3,visibility:"admin,finance"},
+  {id:"KPI-012",title:"ROI سرمایه‌گذاری",group:"سرمایه‌گذاری",metric:"investmentROI",target:10,direction:"higher",unit:"٪",warning:3,critical:0,visibility:"admin,finance"},
+  {id:"KPI-013",title:"کیفیت کل KPI",group:"فرماندهی",metric:"quality",target:80,direction:"higher",unit:"٪",warning:60,critical:40,visibility:"admin,finance"},
+  {id:"KPI-014",title:"امتیاز ریسک کل",group:"ریسک",metric:"riskScore",target:55,direction:"lower",unit:"امتیاز",warning:65,critical:80,visibility:"admin,finance"}
+]}
+function defaultFinanceDefinitions(){return [
+  {id:"DEF-001",type:"قانون هشدار",code:"DELIVERY-QUEUE",title:"صف تحویل",group:"عملیات",formula:"daysToDelivery + balanceRisk + contractRisk",status:"فعال",ownerRole:"finance"},
+  {id:"DEF-002",type:"فرمول KPI",code:"COLLECTION-RATE",title:"نرخ وصول وجه",group:"مالی",formula:"received / salesTotal * 100",status:"فعال",ownerRole:"finance"}
+]}
+function metricCatalog(){return [
+  ["salesTotal","ارزش کل فروش"],["received","دریافت مشتری"],["collectionRate","نرخ وصول وجه"],["customerBalance","مانده قابل دریافت"],["liquidity","نقدینگی کل"],["commissionBalance","مانده پورسانت"],["monthlyExpense","هزینه ثابت ماهانه"],["debtBalance","بدهی مانده"],["invested","سرمایه‌گذاری‌شده"],["investmentROI","ROI سرمایه‌گذاری"],["activeOrders","سفارش فعال"],["customerCount","تعداد مشتری"],["avgDiscount","میانگین تخفیف"],["incompleteContracts","قرارداد ناقص"],["criticalOrders","سفارش بحرانی"],["riskyChecks","چک در خطر"],["riskScore","امتیاز ریسک کل"],["quality","کیفیت KPI"]
+]}
+function metricLabel(metric){return (metricCatalog().find(x=>x[0]===metric)||[metric,metric])[1]}
+function metricValues(){const k=kpis(), sd=salesD(), inv=invD(), salesTotal=k.salesTotal||0, received=k.received||0;return {...k,
+  collectionRate:salesTotal?received/salesTotal*100:0,
+  activeOrders:sd.filter(s=>!["تحویل شده","لغو شده"].includes(s.orderStatus)).length,
+  customerCount:state.customers.length,
+  avgDiscount:sd.length?sum(sd,s=>s.discount*100)/sd.length:0,
+  investmentROI:k.invested?sum(inv,i=>i.profit)/k.invested*100:0
+}}
+function evaluateKpi(def){const values=metricValues(), value=Number(values[def.metric]||0), target=Number(def.target||0), warning=Number(def.warning||0), critical=Number(def.critical||0), dir=def.direction||"higher";let status="عادی", score=0;if(dir==="higher"){score=target?Math.min(140,Math.round(value/target*100)):0;status=value<=critical?"بحرانی":value<=warning?"هشدار":"عادی"}else{score=target||warning?Math.max(0,Math.min(140,Math.round((target||1)/Math.max(value,1)*100))):100;status=value>=critical?"بحرانی":value>=warning?"هشدار":"عادی"}return {...def,value,score,status}}
+function formatKpiValue(v,unit){if(unit==="تومان")return money(v);if(unit==="٪")return fmt.format(Math.round(v*10)/10)+"٪";return fmt.format(Math.round(v*10)/10)}
+
+function ensureKpiDefinitions(){
+  if(!Array.isArray(state.kpiDefinitions) || !state.kpiDefinitions.some(k=>k && k.metric && k.title)) state.kpiDefinitions = defaultKpis();
+  if(!Array.isArray(state.financeDefinitions) || !state.financeDefinitions.length) state.financeDefinitions = defaultFinanceDefinitions();
+}
+function drawKpiStudioChart(defs){
+  const c=$("#kpiStudioChart"); if(!c)return; const b=drawBase("kpiStudioChart"); if(!b)return; const {ctx,w,h}=b;
+  const data=(defs||[]).slice(0,10); if(!data.length){ctx.fillStyle="#f7dc7b";ctx.font="800 16px Tahoma";ctx.textAlign="center";ctx.fillText("KPI برای نمایش وجود ندارد",w/2,h/2);return}
+  const max=Math.max(...data.map(d=>Math.max(1,Number(d.score||0))),100), pad=36, row=(h-pad*2)/data.length;
+  data.forEach((d,i)=>{const y=pad+i*row+4, val=Math.min(max,Number(d.score||0)), bw=(w-230)*val/max; const gr=ctx.createLinearGradient(0,0,w,0); gr.addColorStop(0,d.status==="بحرانی"?"#EF4444":"#005B41");gr.addColorStop(.55,d.status==="هشدار"?"#F5CB5C":"#2563EB");gr.addColorStop(1,"#A855F7");ctx.fillStyle="rgba(255,255,255,.06)";round(ctx,80,y,w-150,row*.48,10);ctx.fillStyle=gr;round(ctx,80,y,bw,row*.48,10);ctx.fillStyle="#E7EEF9";ctx.font="12px Tahoma";ctx.textAlign="right";ctx.fillText(d.title,w-16,y+row*.25+5);ctx.textAlign="left";ctx.fillStyle="#F5CB5C";ctx.fillText(fmt.format(Math.round(d.score)),18,y+row*.25+5)});
+}
+
+function currentUser(){return state.users.find(u=>u.id===state.sessionUserId)||null}
+function initAuth(){const u=currentUser();if(u){state.sessionRole=u.role;state.currentSellerId=u.role==="seller"?u.id:(state.currentSellerId||"USR-SELL-001");$("#loginScreen").style.display="none";$("#appShell").classList.remove("locked");$("#userChip").textContent=`${u.name} / ${roleFa(u.role)}`;}else{$("#loginScreen").style.display="grid";$("#appShell").classList.add("locked")}}
+function roleFa(r){return {admin:"مدیریت کل",finance:"مدیر مالی",seller:"فروشنده",contract:"کارشناس قرارداد"}[r]||r}
+
+function saleD(s){let c=by(state.customers,s.customerId),m=by(state.members,s.memberId),rw=state.formulas.risk, unit=s.marketPrice*(1-s.discount), total=unit*s.quantity, commission=total*(m.commissionRate||0), paid=sum(state.transactions.filter(t=>t.orderId===s.id&&(t.type==="دریافت از مشتری"||t.type==="برگشت وجه مشتری")),t=>t.inflow-t.outflow), balance=total-paid, dd=days(s.deliveryDate), alert=dd<0?"عقب افتاده":dd<=state.settings.criticalDeliveryDays?"بحرانی":dd<=state.settings.nearDeliveryDays?"نزدیک":"عادی", risk=0; risk+=alert==="عقب افتاده"?rw.overdue:alert==="بحرانی"?rw.critical:alert==="نزدیک"?rw.near:0; if(balance>0)risk+=rw.balance;if(s.contractStatus!=="امضا شده")risk+=rw.contract;risk=Math.min(100,risk);return {...s,customerName:c.name||"",memberName:m.name||"",unit,total,commission,paid,balance,days:dd,alert,risk,priority:risk>=80?"فوری":risk>=50?"بالا":risk>=25?"متوسط":"عادی"}}
+const salesD=()=>state.sales.map(saleD);
+function accountsD(){return state.accounts.map(a=>{let rel=state.transactions.filter(t=>t.accountId===a.id),inflow=sum(rel,t=>t.inflow),outflow=sum(rel,t=>t.outflow);return {...a,inflow,outflow,balance:a.opening+inflow-outflow}})}
+function membersD(){let sd=salesD();return state.members.map(m=>{let ms=sd.filter(s=>s.memberId===m.id),generated=sum(ms,s=>s.commission),paid=sum(state.transactions.filter(t=>t.memberId===m.id&&t.type==="پرداخت پورسانت"),t=>t.outflow),gross=sum(ms,s=>s.total);return {...m,gross,generated,paid,balance:generated-paid,orderCount:ms.length,avgSale:ms.length?gross/ms.length:0}})}
+function customersD(){let sd=salesD();return state.customers.map(c=>{let cs=sd.filter(s=>s.customerId===c.id),total=sum(cs,s=>s.total),paid=sum(cs,s=>s.paid),balance=total-paid,risk=cs.length?Math.max(...cs.map(s=>s.risk)):0;return {...c,orderCount:cs.length,total,paid,balance,riskLabel:balance<=0?"عادی":risk>=70?"بحرانی":risk>=30?"نزدیک":"عادی"}})}
+function debtsD(){return state.debts.map(d=>{let paid=sum(state.transactions.filter(t=>t.debtId===d.id&&t.type==="پرداخت بدهی"),t=>t.outflow),balance=d.principal-paid,dd=days(d.dueDate),alert=balance<=0?"تسویه شده":dd<0?"معوق":dd<=state.settings.debtWarningDays?"بحرانی":dd<=14?"نزدیک":"عادی";return {...d,paid,balance,days:dd,alert}})}
+function checksD(){return state.checks.map(c=>{let dd=days(c.dueDate),alert=c.status==="برگشت خورده"?"بحرانی":c.status==="وصول شده"?"عادی":dd<0?"عقب افتاده":dd<=state.settings.checkWarningDays?"بحرانی":dd<=14?"نزدیک":"عادی";return {...c,days:dd,alert}})}
+function invD(){return state.investments.map(i=>{let invested=sum(state.transactions.filter(t=>t.investmentId===i.id),t=>t.type==="سرمایه‌گذاری"?t.outflow:-t.inflow),profit=i.currentValue-invested,roi=invested?profit/invested:0,dd=days(i.exitTarget),alert=roi<0?"زیان‌ده":dd<0?"نیازمند تصمیم":dd<=14?"نزدیک خروج":"عادی";return {...i,invested,profit,roi,days:dd,alert}})}
+function kpis(){let sd=salesD(),mem=membersD(),deb=debtsD(),chk=checksD(),inv=invD(),acc=accountsD(),riskScore=Math.round(sum(sd,s=>s.risk)/Math.max(sd.length,1)+chk.filter(c=>c.alert==="بحرانی").length*state.formulas.risk.checkCritical+deb.filter(d=>d.alert==="بحرانی").length*state.formulas.risk.debtCritical), salesTotal=sum(sd,s=>s.total), customerBalance=sum(sd,s=>Math.max(s.balance,0)), quality=Math.max(0,Math.min(100,Math.round((salesTotal/state.formulas.targets.revenue)*100-(customerBalance/state.formulas.targets.maxCustomerBalance)*18-(riskScore/state.formulas.targets.maxRiskScore)*16)));return {liquidity:sum(acc,a=>a.balance),salesTotal,received:sum(sd,s=>s.paid),customerBalance,commissionBalance:sum(mem,m=>m.balance),monthlyExpense:sum(state.expenses,e=>e.monthlyAmount),debtBalance:sum(deb,d=>d.balance),invested:sum(inv,i=>i.invested),investProfit:sum(inv,i=>i.profit),riskyChecks:chk.filter(c=>["بحرانی","عقب افتاده"].includes(c.alert)).length,criticalOrders:sd.filter(s=>["بحرانی","عقب افتاده","مسدود"].includes(s.alert)).length,incompleteContracts:sd.filter(s=>["ناقص","در انتظار امضا","ریسک حقوقی"].includes(s.contractStatus)).length,riskScore,quality}}
+function alertQueue(mode="risk"){
+  let rows=[];
+  salesD().forEach(s=>{
+    if(s.risk>0 || s.alert!=="عادی"){
+      rows.push({kind:"سفارش",id:s.id,title:s.customerName,subject:s.model,due:s.deliveryDate,days:s.days,amount:s.balance,alert:s.alert,risk:s.risk,priority:s.priority,action:s.nextAction,contract:s.contractStatus});
+    }
+  });
+  checksD().forEach(c=>{
+    if(["بحرانی","عقب افتاده","نزدیک"].includes(c.alert)){
+      rows.push({kind:"چک",id:c.id,title:c.party,subject:c.bank+" / "+c.number,due:c.dueDate,days:c.days,amount:c.amount,alert:c.alert,risk:c.status==="برگشت خورده"?100:c.alert==="عقب افتاده"?95:c.alert==="بحرانی"?85:45,priority:c.alert==="نزدیک"?"متوسط":"فوری",action:"پیگیری وصول چک",contract:"-"});
+    }
+  });
+  debtsD().forEach(d=>{
+    if(["بحرانی","معوق","نزدیک"].includes(d.alert)){
+      rows.push({kind:"بدهی",id:d.id,title:d.creditor,subject:d.description,due:d.dueDate,days:d.days,amount:d.balance,alert:d.alert,risk:d.alert==="معوق"?95:d.alert==="بحرانی"?80:42,priority:d.alert==="نزدیک"?"متوسط":"فوری",action:"بررسی پرداخت بدهی",contract:"-"});
+    }
+  });
+  const sorters={
+    risk:(a,b)=>b.risk-a.risk,
+    delivery:(a,b)=>a.days-b.days,
+    balance:(a,b)=>b.amount-a.amount,
+    contract:(a,b)=>(a.contract==="امضا شده")-(b.contract==="امضا شده") || b.risk-a.risk,
+    checks:(a,b)=>(a.kind==="چک"?0:1)-(b.kind==="چک"?0:1) || a.days-b.days,
+    debts:(a,b)=>(a.kind==="بدهی"?0:1)-(b.kind==="بدهی"?0:1) || a.days-b.days
+  };
+  return rows.sort(sorters[mode]||sorters.risk);
+}
+function renderQueue(){
+  const mode=$("#queueSortMode")?.value || "risk";
+  const rows=alertQueue(mode);
+  const top=rows.slice(0,3);
+  const cards=$("#queueCards"); if(cards){cards.innerHTML=top.map(r=>`<div class="queue-card"><div class="queue-score">${fmt.format(r.risk)}</div><h4>${r.kind} / ${r.id}</h4><p>${r.title} — ${r.subject}</p><p>${badge(r.alert)} ${badge(r.priority)}</p><p>سررسید/تحویل: ${r.due || "-"} | مبلغ: ${money(r.amount)}</p></div>`).join("") || `<div class="locked-note">فعلاً هشدار بحرانی وجود ندارد.</div>`;}
+  if($("#queueTable")) table("queueTable",[{l:"نوع",k:"kind"},{l:"کد",k:"id"},{l:"طرف",k:"title"},{l:"موضوع",k:"subject"},{l:"تاریخ",k:"due"},{l:"روز",k:"days",f:v=>fmt.format(v)},{l:"مبلغ/مانده",k:"amount",f:money},{l:"هشدار",h:r=>badge(r.alert)},{l:"ریسک",k:"risk",f:v=>fmt.format(v)},{l:"اولویت",h:r=>badge(r.priority)},{l:"اقدام",k:"action"}],rows);
+}
+function renderSellerPanel(){
+  const sellerRows=customersD().filter(c=>c.ownerId===state.currentSellerId || state.sessionRole!=="seller");
+  if($("#sellerCustomersTable")) table("sellerCustomersTable",[{l:"کد",k:"id"},{l:"نام",k:"name"},{l:"تماس",k:"phone"},{l:"شهر",k:"city"},{l:"منبع",k:"source"},{l:"وضعیت",h:r=>badge(r.status)},{l:"اقدام بعدی",k:"nextAction"}],sellerRows);
+}
+function applyRole(){
+  const role=state.sessionRole || "admin";
+  const allowed={
+    admin:["dashboard","queue","crm","sales","transactions","members","checks","debts","investments","reports","kpiStudio","seller","formula","guide"],
+    finance:["dashboard","queue","crm","sales","transactions","members","checks","debts","investments","reports","kpiStudio","formula","guide"],
+    seller:["seller","guide"],
+    contract:["queue","crm","sales","guide"]
+  }[role];
+  $$("#nav button").forEach(b=>{b.style.display=allowed.includes(b.dataset.page)?"":"none"});
+  if($("#exportJson")) $("#exportJson").style.display=(role==="seller")?"none":"";
+  if($("#resetDemo")) $("#resetDemo").style.display=(role==="seller")?"none":"";
+  const active=$(".page.active")?.id;
+  if(!allowed.includes(active)) nav(allowed[0]);
+}
+
+function badge(t){let cls=["بحرانی","عقب افتاده","معوق","فوری","ناقص","ریسک حقوقی","زیان‌ده"].includes(t)?"danger":["نزدیک","بالا","متوسط","در انتظار امضا","در انتظار وصول","نزدیک خروج"].includes(t)?"warn":["عادی","فعال","امضا شده","تسویه شده"].includes(t)?"ok":"info";return `<span class="badge ${cls}">${t||"-"}</span>`}
+function table(id,cols,rows){$("#"+id).innerHTML=`<thead><tr>${cols.map(c=>`<th>${c.l}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${c.h?c.h(r):(c.f?c.f(r[c.k],r):(r[c.k]??"-"))}</td>`).join("")}</tr>`).join("")}</tbody>`}
+function select(id,rows,lab,empty=false){let el=$("#"+id);if(!el)return;el.innerHTML=(empty?`<option value="">—</option>`:"")+rows.map(r=>`<option value="${r.id}">${lab(r)}</option>`).join("")}
+function renderDiscountRotor(){let box=$("#discountRotor");box.innerHTML=state.formulas.discountOptions.map((d,i)=>`<button type="button" class="rotor-btn ${i===0?"active":""}" data-discount="${d}">${pct(d)}</button>`).join("")+`<span class="pill">قابل تغییر از Formula Studio</span>`;$("#discountInput").value=state.formulas.discountOptions[0]||.07;$$(".rotor-btn",box).forEach(b=>b.onclick=()=>{$$(".rotor-btn",box).forEach(x=>x.classList.remove("active"));b.classList.add("active");$("#discountInput").value=b.dataset.discount})}
+function renderDash(){let k=kpis();$("#heroPills").innerHTML=[["ریسک کل",fmt.format(k.riskScore)],["کیفیت KPI",fmt.format(k.quality)+"٪"],["سفارش بحرانی",fmt.format(k.criticalOrders)],["قرارداد ناقص",fmt.format(k.incompleteContracts)]].map(x=>`<span class="pill"><strong>${x[1]}</strong>${x[0]}</span>`).join("");$("#kpiGrid").innerHTML=[["نقدینگی کل",k.liquidity,"موجودی"],["ارزش کل فروش",k.salesTotal,"قرارداد"],["دریافت مشتری",k.received,"ورودی"],["مانده مشتریان",k.customerBalance,"پیگیری"],["مانده پورسانت",k.commissionBalance,"تعهد اعضا"],["هزینه ثابت",k.monthlyExpense,"ماهانه"],["بدهی مانده",k.debtBalance,"تعهدات"],["سرمایه‌گذاری",k.invested,"تخصیص"],["سود/زیان سرمایه",k.investProfit,"ROI"],["چک در خطر",k.riskyChecks,"هشدار"],["سفارش بحرانی",k.criticalOrders,"عملیات"],["کیفیت KPI",k.quality,"از ۱۰۰"]].map((x,i)=>`<div class="kpi"><label>${x[0]}</label><strong>${i>8&&i<11?fmt.format(x[1]):i===11?fmt.format(x[1])+"٪":money(x[1])}</strong><small>${x[2]}</small></div>`).join("");let alerts=salesD().sort((a,b)=>b.risk-a.risk).filter(s=>s.risk>0||s.alert!=="عادی");table("alertsTable",[{l:"کد",k:"id"},{l:"مشتری",k:"customerName"},{l:"محصول",k:"model"},{l:"تحویل",k:"deliveryDate"},{l:"هشدار",h:r=>badge(r.alert)},{l:"مانده",k:"balance",f:money},{l:"قرارداد",h:r=>badge(r.contractStatus)},{l:"ریسک",k:"risk",f:v=>fmt.format(v)},{l:"اولویت",h:r=>badge(r.priority)},{l:"اقدام",k:"nextAction"}],alerts);drawGauge("riskGauge",Math.min(k.riskScore,100));drawDonut("financeDonut",[["دریافت",k.received],["مانده",k.customerBalance],["بدهی",k.debtBalance],["سرمایه",k.invested],["پورسانت",k.commissionBalance]]);let pm={};salesD().forEach(s=>pm[s.category]=(pm[s.category]||0)+s.total);drawBars("productBars",Object.entries(pm),"money");drawBars("kpiQuality",[["کیفیت KPI",k.quality],["Achievement",Math.min(100,(k.salesTotal/state.formulas.targets.revenue)*100)],["Risk Load",k.riskScore],["Balance Load",Math.min(100,(k.customerBalance/state.formulas.targets.maxCustomerBalance)*100)]],"count");drawGrouped("commissionChart",membersD().map(m=>[m.name,m.generated,m.paid,m.balance]))}
+function renderTables(){table("crmTable",[{l:"کد",k:"id"},{l:"نام",k:"name"},{l:"تماس",k:"phone"},{l:"شهر",k:"city"},{l:"سفارش",k:"orderCount",f:v=>fmt.format(v)},{l:"ارزش",k:"total",f:money},{l:"پرداخت",k:"paid",f:money},{l:"مانده",k:"balance",f:money},{l:"ریسک",h:r=>badge(r.riskLabel)},{l:"اقدام",k:"nextAction"}],customersD());table("salesTable",[{l:"کد",k:"id"},{l:"مشتری",k:"customerName"},{l:"محصول",k:"model"},{l:"تعداد",k:"quantity",f:v=>fmt.format(v)},{l:"تخفیف",k:"discount",f:pct},{l:"مبلغ",k:"total",f:money},{l:"عضو",k:"memberName"},{l:"پورسانت",k:"commission",f:money},{l:"تحویل",k:"deliveryDate"},{l:"هشدار",h:r=>badge(r.alert)},{l:"مانده",k:"balance",f:money},{l:"قرارداد",h:r=>badge(r.contractStatus)},{l:"ریسک",k:"risk",f:v=>fmt.format(v)},{l:"اولویت",h:r=>badge(r.priority)}],salesD().sort((a,b)=>b.risk-a.risk));table("transactionsTable",[{l:"کد",k:"id"},{l:"تاریخ",k:"date"},{l:"حساب",k:"accountId"},{l:"نوع",k:"type"},{l:"طرف",k:"party"},{l:"سفارش",k:"orderId"},{l:"ورودی",k:"inflow",f:money},{l:"خروجی",k:"outflow",f:money},{l:"روش",k:"method"},{l:"چک",k:"checkId"},{l:"توضیح",k:"note"}],state.transactions.slice().reverse());table("membersTable",[{l:"کد",k:"id"},{l:"عضو",k:"name"},{l:"نقش",k:"role"},{l:"درصد",k:"commissionRate",f:pct},{l:"فروش",k:"gross",f:money},{l:"ایجاد",k:"generated",f:money},{l:"پرداخت",k:"paid",f:money},{l:"مانده",k:"balance",f:money},{l:"سفارش",k:"orderCount",f:v=>fmt.format(v)}],membersD());table("checksTable",[{l:"کد",k:"id"},{l:"نوع",k:"type"},{l:"شماره چک",k:"number"},{l:"طرف",k:"party"},{l:"بانک",k:"bank"},{l:"سررسید",k:"dueDate"},{l:"مبلغ",k:"amount",f:money},{l:"وضعیت",h:r=>badge(r.status)},{l:"روز",k:"days",f:v=>fmt.format(v)},{l:"هشدار",h:r=>badge(r.alert)}],checksD());table("debtsTable",[{l:"کد",k:"id"},{l:"طلبکار",k:"creditor"},{l:"اصل",k:"principal",f:money},{l:"پرداخت",k:"paid",f:money},{l:"مانده",k:"balance",f:money},{l:"سررسید",k:"dueDate"},{l:"روز",k:"days",f:v=>fmt.format(v)},{l:"هشدار",h:r=>badge(r.alert)}],debtsD());table("investmentsTable",[{l:"کد",k:"id"},{l:"عنوان",k:"title"},{l:"سرمایه",k:"invested",f:money},{l:"ارزش",k:"currentValue",f:money},{l:"سود/زیان",k:"profit",f:money},{l:"ROI",k:"roi",f:pct},{l:"خروج",k:"exitTarget"},{l:"هشدار",h:r=>badge(r.alert)}],invD())}
+
+function renderKpiStudio(){
+  ensureKpiDefinitions();
+  const defs=(state.kpiDefinitions||[]).map(evaluateKpi);
+  const role=state.sessionRole||"admin";
+  const visible=defs.filter(d=>(d.visibility||"admin,finance").split(",").includes(role) || role==="admin");
+  const status=$("#kpiEngineStatus"); if(status) status.textContent=`${fmt.format(visible.length)} KPI فعال / ${fmt.format(defs.length)} تعریف`;
+  drawKpiStudioChart(visible);
+  const cat=$("#kpiCatalog");
+  if(cat){cat.innerHTML=visible.length?visible.map(d=>`<div class="kpi-def-card"><h4>${d.title}</h4><div class="value">${formatKpiValue(d.value,d.unit)}</div><div class="meta">${badge(d.group)} ${badge(d.status)} <span class="pill">هدف: ${formatKpiValue(d.target,d.unit)}</span></div><div class="formula">منبع: ${metricLabel(d.metric)} | جهت: ${d.direction==="higher"?"بیشتر بهتر":"کمتر بهتر"} | امتیاز: ${fmt.format(d.score)}</div></div>`).join(""):`<div class="no-data">KPI قابل نمایش برای این نقش وجود ندارد. با حساب مدیر مالی یا مدیریت کل وارد شو یا یک KPI جدید تعریف کن.</div>`}
+  const cols=[{l:"کد",k:"id"},{l:"KPI",k:"title"},{l:"گروه",h:r=>badge(r.group)},{l:"منبع",h:r=>metricLabel(r.metric)},{l:"مقدار",h:r=>formatKpiValue(r.value,r.unit)},{l:"هدف",h:r=>formatKpiValue(r.target,r.unit)},{l:"جهت",h:r=>r.direction==="higher"?"بیشتر بهتر":"کمتر بهتر"},{l:"وضعیت",h:r=>badge(r.status)},{l:"امتیاز",k:"score",f:v=>fmt.format(v)},{l:"نمایش",k:"visibility"}];
+  if($("#kpiDefinitionsTable")) table("kpiDefinitionsTable",cols,defs);
+  if($("#kpiReportTable")) table("kpiReportTable",cols,visible);
+  if($("#definitionsTable")) table("definitionsTable",[{l:"کد",k:"code"},{l:"نوع",k:"type"},{l:"عنوان",k:"title"},{l:"گروه",k:"group"},{l:"فرمول/توضیح",k:"formula"},{l:"وضعیت",h:r=>badge(r.status)},{l:"مالک",h:r=>roleFa(r.ownerRole)}],state.financeDefinitions||[]);
+}
+function renderKpiMetricSelect(){const el=$("#kpiMetricSelect"); if(!el)return; const old=el.value; el.innerHTML=metricCatalog().map(([v,l])=>`<option value="${v}">${l}</option>`).join(""); if(old) el.value=old;}
+
+function renderReports(){let k=kpis();$("#financialReport").innerHTML=[["نقدینگی",money(k.liquidity)],["فروش",money(k.salesTotal)],["دریافت",money(k.received)],["مانده مشتری",money(k.customerBalance)],["بدهی",money(k.debtBalance)]].map(row).join("");$("#operationReport").innerHTML=[["مشتری",fmt.format(state.customers.length)],["سفارش",fmt.format(state.sales.length)],["تراکنش",fmt.format(state.transactions.length)],["چک در خطر",fmt.format(k.riskyChecks)],["قرارداد ناقص",fmt.format(k.incompleteContracts)]].map(row).join("");$("#riskReport").innerHTML=[["ریسک کل",fmt.format(k.riskScore)],["کیفیت KPI",fmt.format(k.quality)+"٪"],["سفارش بحرانی",fmt.format(k.criticalOrders)],["مانده پورسانت",money(k.commissionBalance)],["سود سرمایه",money(k.investProfit)]].map(row).join("")}
+function row(x){return `<div class="report-row"><span>${x[0]}</span><strong>${x[1]}</strong></div>`}
+function renderSelects(){renderKpiMetricSelect();select("saleCustomer",state.customers,r=>`${r.name} — ${r.id}`);select("saleMember",state.members,r=>`${r.name} — ${r.id}`);select("trxAccount",state.accounts,r=>`${r.name} — ${r.id}`);select("trxCustomer",[{id:"",name:"بدون مشتری"},...state.customers],r=>r.name,false);select("trxMember",[{id:"",name:"بدون عضو"},...state.members],r=>r.name,false);select("trxOrder",[{id:"",model:"بدون سفارش"},...state.sales],r=>`${r.id} ${r.model||""}`,false)}
+function renderFormula(){let f=state.formulas;if($("#roleSelect")) $("#roleSelect").value=state.sessionRole;$("#nearDeliveryDays").value=state.settings.nearDeliveryDays;$("#criticalDeliveryDays").value=state.settings.criticalDeliveryDays;$("#checkWarningDays").value=state.settings.checkWarningDays;$("#debtWarningDays").value=state.settings.debtWarningDays;$("#riskOverdue").value=f.risk.overdue;$("#riskCritical").value=f.risk.critical;$("#riskNear").value=f.risk.near;$("#riskBalance").value=f.risk.balance;$("#riskContract").value=f.risk.contract;$("#riskCheck").value=f.risk.checkCritical;$("#riskDebt").value=f.risk.debtCritical;$("#discountOptionsText").value=f.discountOptions.map(x=>Math.round(x*100)).join(",");$("#targetRevenue").value=f.targets.revenue;$("#maxCustomerBalance").value=f.targets.maxCustomerBalance;$("#maxRiskScore").value=f.targets.maxRiskScore}
+function render(){renderSelects();renderDiscountRotor();renderDash();renderTables();renderReports();renderFormula();renderQueue();renderSellerPanel();applyRole();save();searchWire()}
+function searchWire(){$$("[data-table-search]").forEach(i=>i.oninput=()=>{$$("#"+i.dataset.tableSearch+" tbody tr").forEach(r=>r.style.display=r.innerText.includes(i.value)?"":"none")})}
+function drawBase(id){let c=$("#"+id);if(!c)return null;let ctx=c.getContext("2d"),w=c.clientWidth||c.parentElement?.clientWidth||520,h=c.clientHeight||300,dpr=window.devicePixelRatio||1;c.width=w*dpr;c.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);return{ctx,w,h}}
+const pal=["#F5CB5C","#10B981","#2563EB","#A855F7","#EF4444","#22D3EE","#F97316"];
+function round(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();ctx.fill()}
+function drawDonut(id,data){let b=drawBase(id);if(!b)return;let{ctx,w,h}=b,total=data.reduce((a,x)=>a+x[1],0)||1,cx=w/2,cy=h/2,r=Math.min(w,h)*.32,th=r*.38,start=-Math.PI/2;data.forEach((d,i)=>{let a=d[1]/total*Math.PI*2;ctx.beginPath();ctx.arc(cx,cy,r,start,start+a);ctx.arc(cx,cy,r-th,start+a,start,true);ctx.closePath();ctx.fillStyle=pal[i%pal.length];ctx.fill();start+=a});ctx.fillStyle="#fff";ctx.font="800 21px Tahoma";ctx.textAlign="center";ctx.fillText(money(total),cx,cy+5);data.forEach((d,i)=>{ctx.fillStyle=pal[i%pal.length];ctx.fillRect(16,18+i*22,10,10);ctx.fillStyle="#CBD5E1";ctx.font="11px Tahoma";ctx.textAlign="right";ctx.fillText(`${d[0]}: ${money(d[1])}`,w-16,28+i*22)})}
+function drawBars(id,data,mode){let b=drawBase(id);if(!b)return;let{ctx,w,h}=b,max=Math.max(...data.map(x=>x[1]),1),pad=34,step=(h-pad*2)/Math.max(data.length,1);data.forEach((d,i)=>{let y=pad+i*step+6,bw=(w-180)*d[1]/max,gr=ctx.createLinearGradient(0,0,w,0);gr.addColorStop(0,"#005B41");gr.addColorStop(.45,"#F5CB5C");gr.addColorStop(1,"#6D28D9");ctx.fillStyle="rgba(255,255,255,.06)";round(ctx,78,y,w-120,step*.48,10);ctx.fillStyle=gr;round(ctx,78,y,bw,step*.48,10);ctx.fillStyle="#E7EEF9";ctx.font="12px Tahoma";ctx.textAlign="right";ctx.fillText(d[0],w-16,y+step*.25+5);ctx.textAlign="left";ctx.fillStyle="#F5CB5C";ctx.fillText(mode==="money"?money(d[1]):fmt.format(Math.round(d[1])),14,y+step*.25+5)})}
+function drawGrouped(id,data){let b=drawBase(id);if(!b)return;let{ctx,w,h}=b,max=Math.max(...data.flatMap(x=>x.slice(1)),1),pad=44,gw=(w-pad*2)/Math.max(data.length,1),colors=["#F5CB5C","#10B981","#EF4444"];data.forEach((d,i)=>{let x=pad+i*gw+gw*.18,bw=gw*.16;d.slice(1).forEach((v,j)=>{let bh=(h-85)*v/max;ctx.fillStyle=colors[j];round(ctx,x+j*(bw+5),h-42-bh,bw,bh,7)});ctx.save();ctx.translate(x+12,h-15);ctx.rotate(-.25);ctx.fillStyle="#CBD5E1";ctx.font="11px Tahoma";ctx.textAlign="center";ctx.fillText(d[0],0,0);ctx.restore()})}
+function drawGauge(id,value){let b=drawBase(id);if(!b)return;let{ctx,w,h}=b,cx=w/2,cy=h*.74,r=Math.min(w,h)*.55;ctx.lineWidth=19;ctx.lineCap="round";ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI*2);ctx.strokeStyle="rgba(255,255,255,.08)";ctx.stroke();let g=ctx.createLinearGradient(30,0,w-30,0);g.addColorStop(0,"#10B981");g.addColorStop(.52,"#F5CB5C");g.addColorStop(1,"#EF4444");ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+Math.PI*value/100);ctx.strokeStyle=g;ctx.stroke();let a=Math.PI+Math.PI*value/100;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*(r-16),cy+Math.sin(a)*(r-16));ctx.strokeStyle="#fff";ctx.lineWidth=4;ctx.stroke();ctx.fillStyle="#F5CB5C";ctx.font="900 34px Tahoma";ctx.textAlign="center";ctx.fillText(fmt.format(Math.round(value)),cx,cy-34);ctx.fillStyle="#A7B1C2";ctx.font="12px Tahoma";ctx.fillText("Risk / 100",cx,cy-10)}
+function nav(p){$$(".page").forEach(x=>x.classList.toggle("active",x.id===p));$$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===p));let titles={dashboard:["داشبورد فرماندهی","نمای لوکس، ریسپانسیو و فرمول‌محور برای مدیریت پیش‌فروش"],crm:["CRM مشتریان","پرونده مشتری، مانده و ریسک"],sales:["فروش و قرارداد","سفارش، تخفیف روتاری، تحویل و پورسانت"],transactions:["دفتر تراکنش","منبع رسمی پول"],members:["اعضا و پورسانت","محاسبه پورسانت با فرمول‌های قابل تغییر"],checks:["چک‌ها","هشدارهای سررسید و وصول"],debts:["بدهی‌ها","تعهدات و معوقات"],investments:["سرمایه‌گذاری","ROI و سود/زیان"],reports:["گزارش KPI","کیفیت، عملیات و ریسک"],kpiStudio:["KPI Studio","تعریف شاخص، منبع محاسبه، هدف، مرز هشدار و مرز بحرانی"],queue:["صف هشدار","چیدمان خودکار هشدارها بر اساس ریسک، تحویل، مانده، چک و بدهی"],seller:["پنل فروشنده","ثبت مشتری با دسترسی محدود"],formula:["فرمول و هشدارها","Formula Studio مدیر مالی"],guide:["راهنمای کامل","روش اجرا، دسترسی‌ها، صف هشدار و مسیر توسعه"]};$("#pageTitle").textContent=titles[p][0];$("#pageSubtitle").textContent=titles[p][1];setTimeout(renderDash,80); if(p==="kpiStudio") setTimeout(renderKpiStudio,120)}
+$$(".nav button").forEach(b=>b.onclick=()=>nav(b.dataset.page));if($("#roleSelect")) $("#roleSelect").onchange=e=>{state.sessionRole=e.target.value;render();};
+$("#queueSortMode")?.addEventListener("change",()=>renderQueue());
+$("#refreshQueue")?.addEventListener("click",()=>renderQueue());
+$("#printPage").onclick=()=>print();$("#exportJson").onclick=()=>{let blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="presale-luxury-data.json";a.click();URL.revokeObjectURL(a.href)};$("#resetDemo").onclick=()=>{if(confirm("بازنشانی شود؟")){storage.removeItem(KEY);state=clone(SEED);migrateState();initAuth();render()}}
+$("#saveFormula").onclick=()=>{state.settings.nearDeliveryDays=Number($("#nearDeliveryDays").value);state.settings.criticalDeliveryDays=Number($("#criticalDeliveryDays").value);state.settings.checkWarningDays=Number($("#checkWarningDays").value);state.settings.debtWarningDays=Number($("#debtWarningDays").value);Object.assign(state.formulas.risk,{overdue:Number($("#riskOverdue").value),critical:Number($("#riskCritical").value),near:Number($("#riskNear").value),balance:Number($("#riskBalance").value),contract:Number($("#riskContract").value),checkCritical:Number($("#riskCheck").value),debtCritical:Number($("#riskDebt").value)});state.formulas.discountOptions=$("#discountOptionsText").value.split(",").map(x=>Number(x.trim())/100).filter(x=>x>0&&x<1);state.formulas.targets={revenue:Number($("#targetRevenue").value),maxCustomerBalance:Number($("#maxCustomerBalance").value),maxRiskScore:Number($("#maxRiskScore").value)};render();alert("فرمول‌ها و هشدارها ذخیره شد.")}
+$("#customerForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.customers.push({id:next("CUS",state.customers),ownerId:state.currentSellerId,...fd});e.target.reset();render();nav("crm")}
+$("#sellerCustomerForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.customers.push({id:next("CUS",state.customers),ownerId:state.currentSellerId,...fd});e.target.reset();render();nav("seller")};
+$("#saleForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target)),d=Number(fd.discount);state.sales.push({id:next("ORD",state.sales),date:new Date().toISOString().slice(0,10),customerId:fd.customerId,category:fd.category,model:fd.model,quantity:Number(fd.quantity||1),marketPrice:Number(fd.marketPrice||0),discount:d,memberId:fd.memberId,contractNo:fd.contractNo,contractStatus:fd.contractStatus,deliveryDate:fd.deliveryDate,orderStatus:fd.orderStatus,nextAction:fd.nextAction});e.target.reset();render();nav("sales")}
+$("#transactionForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.transactions.push({id:next("TRX",state.transactions),date:new Date().toISOString().slice(0,10),accountId:fd.accountId,type:fd.type,party:fd.party,customerId:fd.customerId,memberId:fd.memberId,orderId:fd.orderId,debtId:fd.debtId,investmentId:fd.investmentId,inflow:Number(fd.inflow||0),outflow:Number(fd.outflow||0),method:fd.method,checkId:fd.checkId,note:fd.note});e.target.reset();render();nav("transactions")}
+
+$("#loginForm").onsubmit=e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));let u=state.users.find(x=>x.username===fd.username && x.password===fd.password);if(!u){$("#loginError").textContent="نام کاربری یا رمز عبور اشتباه است.";return}state.sessionUserId=u.id;state.sessionRole=u.role;state.currentSellerId=u.role==="seller"?u.id:(state.currentSellerId||"USR-SELL-001");save();initAuth();render();};
+$("#logoutBtn").onclick=()=>{state.sessionUserId="";save();initAuth();};
+$("#kpiForm")?.addEventListener("submit",e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.kpiDefinitions.push({id:next("KPI",state.kpiDefinitions),title:fd.title,group:fd.group,metric:fd.metric,target:Number(fd.target||0),direction:fd.direction,unit:fd.unit,warning:Number(fd.warning||0),critical:Number(fd.critical||0),visibility:fd.visibility});e.target.reset();render();nav("kpiStudio")});
+$("#definitionForm")?.addEventListener("submit",e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.financeDefinitions.push({id:next("DEF",state.financeDefinitions),type:fd.type,code:fd.code,title:fd.title,group:fd.group,formula:fd.formula,status:fd.status,ownerRole:fd.ownerRole});e.target.reset();render();nav("kpiStudio")});
+$("#checkForm")?.addEventListener("submit",e=>{e.preventDefault();let fd=Object.fromEntries(new FormData(e.target));state.checks.push({id:next("CHK",state.checks),type:fd.type,transactionId:"",refId:fd.refId,party:fd.party,bank:fd.bank,number:fd.number,issueDate:fd.issueDate,dueDate:fd.dueDate,amount:Number(fd.amount||0),status:fd.status});e.target.reset();render();nav("checks")});
+
+addEventListener("resize",()=>setTimeout(renderDash,150));initAuth();render();setTimeout(renderDash,250);setTimeout(renderDash,1000);
+</script>
+</body>
+</html>

@@ -1,24 +1,30 @@
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
+import { join } from 'path';
 import { AppModule } from './app.module';
 import { AppConfig } from './config/configuration';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
   const config = app.get(ConfigService<AppConfig, true>);
 
   // Structured logging via pino.
   app.useLogger(app.get(Logger));
 
-  // Security & performance middleware. CSP disabled so the Swagger UI loads;
-  // tighten it behind your reverse proxy in production.
+  // Security & performance middleware. CSP disabled so the Swagger UI and the
+  // inline-script SPA load; tighten it behind your reverse proxy in production.
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(compression());
+
+  // Serve the web UI at the root (http://localhost:3000/). Files that don't
+  // exist fall through to the API router, so /api/* keeps working.
+  app.useStaticAssets(join(__dirname, '..', 'public'));
 
   const origins = config.get('corsOrigins', { infer: true }) ?? ['*'];
   app.enableCors({
