@@ -10,7 +10,7 @@ import { seedDatabase } from '../src/seed/seed.runner';
 
 const prisma = new PrismaClient();
 
-seedDatabase(prisma, { reset: true })
+seedDatabase(prisma, { reset: true, demo: true })
   .then(async (counts) => {
     // eslint-disable-next-line no-console
     console.log('Seed complete:', counts);

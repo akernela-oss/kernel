@@ -160,6 +160,7 @@
       <button data-page="crm">CRM مشتریان</button>
       <button data-page="sales">فروش و قرارداد</button>
       <button data-page="transactions">دفتر تراکنش</button>
+      <button data-page="accounts">حساب‌ها و صندوق‌ها</button>
       <button data-page="members">اعضا و پورسانت</button>
       <button data-page="checks">چک‌ها</button>
       <button data-page="debts">بدهی‌ها</button>
@@ -203,7 +204,29 @@
 
     <section class="page" id="transactions"><form class="panel form-panel" id="transactionForm"><div class="panel-head"><h3>ثبت تراکنش</h3><span>قلب حسابداری</span></div><div class="form-grid wide"><select name="type"><option>دریافت از مشتری</option><option>برگشت وجه مشتری</option><option>پرداخت پورسانت</option><option>هزینه ثابت</option><option>پرداخت بدهی</option><option>سرمایه‌گذاری</option><option>برداشت از سرمایه‌گذاری</option></select><select name="accountId" id="trxAccount"></select><input name="party" placeholder="طرف حساب"><select name="customerId" id="trxCustomer"></select><select name="memberId" id="trxMember"></select><select name="orderId" id="trxOrder"></select><input name="debtId" placeholder="کد بدهی"><input name="investmentId" placeholder="کد سرمایه‌گذاری"><input name="inflow" type="number" placeholder="ورودی"><input name="outflow" type="number" placeholder="خروجی"><select name="method"><option>نقدی</option><option>کارت به کارت</option><option>حواله بانکی</option><option>چک</option><option>ترکیبی</option></select><input name="checkId" placeholder="شناسه چک"><input name="note" placeholder="توضیح"></div><br><button class="btn primary">ثبت تراکنش</button></form><div class="panel"><div class="panel-head"><h3>دفتر تراکنش‌ها</h3><input class="search" data-table-search="transactionsTable" placeholder="جستجو..."></div><div class="table-wrap"><table id="transactionsTable"></table></div></div></section>
 
-    <section class="page" id="members"><div class="panel"><div class="panel-head"><h3>اعضا و پورسانت</h3><span>فرمول‌های متصل</span></div><div class="table-wrap"><table id="membersTable"></table></div></div></section>
+    <section class="page" id="accounts">
+      <form class="panel form-panel" id="accountForm">
+        <div class="panel-head"><h3>ثبت حساب / صندوق</h3><span>حساب‌های بانکی، نقدی و صندوق‌ها</span></div>
+        <div class="form-grid">
+          <input name="name" placeholder="نام حساب" required>
+          <select name="type"><option>بانکی</option><option>نقدی</option><option>چک</option><option>سرمایه‌گذاری</option><option>داخلی</option></select>
+          <input name="opening" type="number" placeholder="موجودی اولیه">
+        </div><br><button class="btn primary">ثبت حساب</button>
+      </form>
+      <div class="panel"><div class="panel-head"><h3>حساب‌ها و صندوق‌ها</h3><span>موجودی زنده: اول‌دوره + ورودی − خروجی</span></div><div class="table-wrap"><table id="accountsTable"></table></div></div>
+    </section>
+    <section class="page" id="members">
+      <form class="panel form-panel" id="memberForm">
+        <div class="panel-head"><h3>ثبت عضو / فروشنده</h3><span>درصد پورسانت در محاسبات اعمال می‌شود</span></div>
+        <div class="form-grid">
+          <input name="name" placeholder="نام عضو" required>
+          <input name="role" placeholder="نقش (فروشنده / مدیر فروش / معرف)" required>
+          <input name="commissionRate" type="number" step="0.001" min="0" max="1" placeholder="درصد پورسانت مثلاً 0.02">
+          <select name="status"><option>فعال</option><option>غیرفعال</option></select>
+        </div><br><button class="btn primary">ثبت عضو</button>
+      </form>
+      <div class="panel"><div class="panel-head"><h3>اعضا و پورسانت</h3><span>فرمول‌های متصل</span></div><div class="table-wrap"><table id="membersTable"></table></div></div>
+    </section>
     <section class="page" id="checks">
       <form class="panel form-panel" id="checkForm">
         <div class="panel-head"><h3>ثبت چک</h3><span>شماره چک اجباری است و وارد صف هشدار می‌شود</span></div>
@@ -221,8 +244,34 @@
       </form>
       <div class="panel"><div class="panel-head"><h3>چک‌ها</h3><span>شماره، سررسید و هشدار وصول</span></div><div class="table-wrap"><table id="checksTable"></table></div></div>
     </section>
-    <section class="page" id="debts"><div class="panel"><div class="panel-head"><h3>بدهی‌ها</h3><span>تعهدات و معوقات</span></div><div class="table-wrap"><table id="debtsTable"></table></div></div></section>
-    <section class="page" id="investments"><div class="panel"><div class="panel-head"><h3>سرمایه‌گذاری</h3><span>ROI و سود/زیان</span></div><div class="table-wrap"><table id="investmentsTable"></table></div></div></section>
+    <section class="page" id="debts">
+      <form class="panel form-panel" id="debtForm">
+        <div class="panel-head"><h3>ثبت بدهی</h3><span>تعهدات و معوقات</span></div>
+        <div class="form-grid">
+          <input name="creditor" placeholder="طلبکار" required>
+          <input name="type" placeholder="نوع (تامین‌کننده / بانکی)" required>
+          <input name="description" placeholder="توضیح">
+          <input name="principal" type="number" placeholder="مبلغ اصل بدهی" required>
+          <input name="dueDate" type="date" required>
+          <select name="status"><option>فعال</option><option>تسویه شده</option></select>
+        </div><br><button class="btn primary">ثبت بدهی</button>
+      </form>
+      <div class="panel"><div class="panel-head"><h3>بدهی‌ها</h3><span>تعهدات و معوقات</span></div><div class="table-wrap"><table id="debtsTable"></table></div></div>
+    </section>
+    <section class="page" id="investments">
+      <form class="panel form-panel" id="investmentForm">
+        <div class="panel-head"><h3>ثبت سرمایه‌گذاری</h3><span>ROI و سود/زیان</span></div>
+        <div class="form-grid">
+          <input name="title" placeholder="عنوان سرمایه‌گذاری" required>
+          <input name="source" placeholder="منبع / کد حساب">
+          <input name="startDate" type="date">
+          <input name="currentValue" type="number" placeholder="ارزش فعلی">
+          <select name="status"><option>فعال</option><option>در انتظار تصمیم</option><option>بسته شده</option></select>
+          <input name="exitTarget" type="date">
+        </div><br><button class="btn primary">ثبت سرمایه‌گذاری</button>
+      </form>
+      <div class="panel"><div class="panel-head"><h3>سرمایه‌گذاری</h3><span>ROI و سود/زیان</span></div><div class="table-wrap"><table id="investmentsTable"></table></div></div>
+    </section>
     <section class="page" id="reports"><div class="report-grid"><div class="panel"><div class="panel-head"><h3>گزارش مالی</h3></div><div id="financialReport"></div></div><div class="panel"><div class="panel-head"><h3>گزارش عملیات</h3></div><div id="operationReport"></div></div><div class="panel"><div class="panel-head"><h3>گزارش ریسک و KPI</h3></div><div id="riskReport"></div></div></div><div class="panel" style="margin-top:16px"><div class="panel-head"><h3>گزارش کامل KPIهای تعریف‌شده</h3><span>تعاریف توسط مدیر مالی یا مدیریت کل قابل تغییر و ایجاد است</span></div><div class="table-wrap"><table id="kpiReportTable"></table></div></div></section>
 
 
@@ -542,8 +591,8 @@ function renderSellerPanel(){
 function applyRole(){
   const role=state.sessionRole || "admin";
   const allowed={
-    admin:["dashboard","queue","crm","sales","transactions","members","checks","debts","investments","reports","kpiStudio","seller","formula","guide"],
-    finance:["dashboard","queue","crm","sales","transactions","members","checks","debts","investments","reports","kpiStudio","formula","guide"],
+    admin:["dashboard","queue","crm","sales","transactions","accounts","members","checks","debts","investments","reports","kpiStudio","seller","formula","guide"],
+    finance:["dashboard","queue","crm","sales","transactions","accounts","members","checks","debts","investments","reports","kpiStudio","formula","guide"],
     seller:["seller","guide"],
     contract:["queue","crm","sales","guide"]
   }[role];
@@ -555,11 +604,11 @@ function applyRole(){
 }
 
 function badge(t){let cls=["بحرانی","عقب افتاده","معوق","فوری","ناقص","ریسک حقوقی","زیان‌ده"].includes(t)?"danger":["نزدیک","بالا","متوسط","در انتظار امضا","در انتظار وصول","نزدیک خروج"].includes(t)?"warn":["عادی","فعال","امضا شده","تسویه شده"].includes(t)?"ok":"info";return `<span class="badge ${cls}">${t||"-"}</span>`}
-function table(id,cols,rows){$("#"+id).innerHTML=`<thead><tr>${cols.map(c=>`<th>${c.l}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${c.h?c.h(r):(c.f?c.f(r[c.k],r):(r[c.k]??"-"))}</td>`).join("")}</tr>`).join("")}</tbody>`}
+function table(id,cols,rows,delRes){const all=delRes?cols.concat([{l:"عملیات",h:r=>`<button type="button" class="btn ghost row-del" data-res="${delRes}" data-id="${r.id}">حذف</button>`}]):cols;$("#"+id).innerHTML=`<thead><tr>${all.map(c=>`<th>${c.l}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${all.map(c=>`<td>${c.h?c.h(r):(c.f?c.f(r[c.k],r):(r[c.k]??"-"))}</td>`).join("")}</tr>`).join("")}</tbody>`}
 function select(id,rows,lab,empty=false){let el=$("#"+id);if(!el)return;el.innerHTML=(empty?`<option value="">—</option>`:"")+rows.map(r=>`<option value="${r.id}">${lab(r)}</option>`).join("")}
 function renderDiscountRotor(){let box=$("#discountRotor");box.innerHTML=state.formulas.discountOptions.map((d,i)=>`<button type="button" class="rotor-btn ${i===0?"active":""}" data-discount="${d}">${pct(d)}</button>`).join("")+`<span class="pill">قابل تغییر از Formula Studio</span>`;$("#discountInput").value=state.formulas.discountOptions[0]||.07;$$(".rotor-btn",box).forEach(b=>b.onclick=()=>{$$(".rotor-btn",box).forEach(x=>x.classList.remove("active"));b.classList.add("active");$("#discountInput").value=b.dataset.discount})}
 function renderDash(){let k=kpis();$("#heroPills").innerHTML=[["ریسک کل",fmt.format(k.riskScore)],["کیفیت KPI",fmt.format(k.quality)+"٪"],["سفارش بحرانی",fmt.format(k.criticalOrders)],["قرارداد ناقص",fmt.format(k.incompleteContracts)]].map(x=>`<span class="pill"><strong>${x[1]}</strong>${x[0]}</span>`).join("");$("#kpiGrid").innerHTML=[["نقدینگی کل",k.liquidity,"موجودی"],["ارزش کل فروش",k.salesTotal,"قرارداد"],["دریافت مشتری",k.received,"ورودی"],["مانده مشتریان",k.customerBalance,"پیگیری"],["مانده پورسانت",k.commissionBalance,"تعهد اعضا"],["هزینه ثابت",k.monthlyExpense,"ماهانه"],["بدهی مانده",k.debtBalance,"تعهدات"],["سرمایه‌گذاری",k.invested,"تخصیص"],["سود/زیان سرمایه",k.investProfit,"ROI"],["چک در خطر",k.riskyChecks,"هشدار"],["سفارش بحرانی",k.criticalOrders,"عملیات"],["کیفیت KPI",k.quality,"از ۱۰۰"]].map((x,i)=>`<div class="kpi"><label>${x[0]}</label><strong>${i>8&&i<11?fmt.format(x[1]):i===11?fmt.format(x[1])+"٪":money(x[1])}</strong><small>${x[2]}</small></div>`).join("");let alerts=salesD().sort((a,b)=>b.risk-a.risk).filter(s=>s.risk>0||s.alert!=="عادی");table("alertsTable",[{l:"کد",k:"id"},{l:"مشتری",k:"customerName"},{l:"محصول",k:"model"},{l:"تحویل",k:"deliveryDate"},{l:"هشدار",h:r=>badge(r.alert)},{l:"مانده",k:"balance",f:money},{l:"قرارداد",h:r=>badge(r.contractStatus)},{l:"ریسک",k:"risk",f:v=>fmt.format(v)},{l:"اولویت",h:r=>badge(r.priority)},{l:"اقدام",k:"nextAction"}],alerts);drawGauge("riskGauge",Math.min(k.riskScore,100));drawDonut("financeDonut",[["دریافت",k.received],["مانده",k.customerBalance],["بدهی",k.debtBalance],["سرمایه",k.invested],["پورسانت",k.commissionBalance]]);let pm={};salesD().forEach(s=>pm[s.category]=(pm[s.category]||0)+s.total);drawBars("productBars",Object.entries(pm),"money");drawBars("kpiQuality",[["کیفیت KPI",k.quality],["Achievement",Math.min(100,(k.salesTotal/state.formulas.targets.revenue)*100)],["Risk Load",k.riskScore],["Balance Load",Math.min(100,(k.customerBalance/state.formulas.targets.maxCustomerBalance)*100)]],"count");drawGrouped("commissionChart",membersD().map(m=>[m.name,m.generated,m.paid,m.balance]))}
-function renderTables(){table("crmTable",[{l:"کد",k:"id"},{l:"نام",k:"name"},{l:"تماس",k:"phone"},{l:"شهر",k:"city"},{l:"سفارش",k:"orderCount",f:v=>fmt.format(v)},{l:"ارزش",k:"total",f:money},{l:"پرداخت",k:"paid",f:money},{l:"مانده",k:"balance",f:money},{l:"ریسک",h:r=>badge(r.riskLabel)},{l:"اقدام",k:"nextAction"}],customersD());table("salesTable",[{l:"کد",k:"id"},{l:"مشتری",k:"customerName"},{l:"محصول",k:"model"},{l:"تعداد",k:"quantity",f:v=>fmt.format(v)},{l:"تخفیف",k:"discount",f:pct},{l:"مبلغ",k:"total",f:money},{l:"عضو",k:"memberName"},{l:"پورسانت",k:"commission",f:money},{l:"تحویل",k:"deliveryDate"},{l:"هشدار",h:r=>badge(r.alert)},{l:"مانده",k:"balance",f:money},{l:"قرارداد",h:r=>badge(r.contractStatus)},{l:"ریسک",k:"risk",f:v=>fmt.format(v)},{l:"اولویت",h:r=>badge(r.priority)}],salesD().sort((a,b)=>b.risk-a.risk));table("transactionsTable",[{l:"کد",k:"id"},{l:"تاریخ",k:"date"},{l:"حساب",k:"accountId"},{l:"نوع",k:"type"},{l:"طرف",k:"party"},{l:"سفارش",k:"orderId"},{l:"ورودی",k:"inflow",f:money},{l:"خروجی",k:"outflow",f:money},{l:"روش",k:"method"},{l:"چک",k:"checkId"},{l:"توضیح",k:"note"}],state.transactions.slice().reverse());table("membersTable",[{l:"کد",k:"id"},{l:"عضو",k:"name"},{l:"نقش",k:"role"},{l:"درصد",k:"commissionRate",f:pct},{l:"فروش",k:"gross",f:money},{l:"ایجاد",k:"generated",f:money},{l:"پرداخت",k:"paid",f:money},{l:"مانده",k:"balance",f:money},{l:"سفارش",k:"orderCount",f:v=>fmt.format(v)}],membersD());table("checksTable",[{l:"کد",k:"id"},{l:"نوع",k:"type"},{l:"شماره چک",k:"number"},{l:"طرف",k:"party"},{l:"بانک",k:"bank"},{l:"سررسید",k:"dueDate"},{l:"مبلغ",k:"amount",f:money},{l:"وضعیت",h:r=>badge(r.status)},{l:"روز",k:"days",f:v=>fmt.format(v)},{l:"هشدار",h:r=>badge(r.alert)}],checksD());table("debtsTable",[{l:"کد",k:"id"},{l:"طلبکار",k:"creditor"},{l:"اصل",k:"principal",f:money},{l:"پرداخت",k:"paid",f:money},{l:"مانده",k:"balance",f:money},{l:"سررسید",k:"dueDate"},{l:"روز",k:"days",f:v=>fmt.format(v)},{l:"هشدار",h:r=>badge(r.alert)}],debtsD());table("investmentsTable",[{l:"کد",k:"id"},{l:"عنوان",k:"title"},{l:"سرمایه",k:"invested",f:money},{l:"ارزش",k:"currentValue",f:money},{l:"سود/زیان",k:"profit",f:money},{l:"ROI",k:"roi",f:pct},{l:"خروج",k:"exitTarget"},{l:"هشدار",h:r=>badge(r.alert)}],invD())}
+function renderTables(){table("crmTable",[{l:"کد",k:"code"},{l:"نام",k:"name"},{l:"تماس",k:"phone"},{l:"شهر",k:"city"},{l:"سفارش",k:"orderCount",f:v=>fmt.format(v)},{l:"ارزش",k:"total",f:money},{l:"پرداخت",k:"paid",f:money},{l:"مانده",k:"balance",f:money},{l:"ریسک",h:r=>badge(r.riskLabel)},{l:"اقدام",k:"nextAction"}],customersD(),"customers");table("salesTable",[{l:"کد",k:"code"},{l:"مشتری",k:"customerName"},{l:"محصول",k:"model"},{l:"تعداد",k:"quantity",f:v=>fmt.format(v)},{l:"تخفیف",k:"discount",f:pct},{l:"مبلغ",k:"total",f:money},{l:"عضو",k:"memberName"},{l:"پورسانت",k:"commission",f:money},{l:"تحویل",k:"deliveryDate"},{l:"هشدار",h:r=>badge(r.alert)},{l:"مانده",k:"balance",f:money},{l:"قرارداد",h:r=>badge(r.contractStatus)},{l:"ریسک",k:"risk",f:v=>fmt.format(v)},{l:"اولویت",h:r=>badge(r.priority)}],salesD().sort((a,b)=>b.risk-a.risk),"sales");table("transactionsTable",[{l:"کد",k:"code"},{l:"تاریخ",k:"date"},{l:"حساب",h:r=>{const a=by(state.accounts,r.accountId);return a.name||a.code||"-"}},{l:"نوع",k:"type"},{l:"طرف",k:"party"},{l:"سفارش",h:r=>{const o=by(state.sales,r.orderId);return o.code||"-"}},{l:"ورودی",k:"inflow",f:money},{l:"خروجی",k:"outflow",f:money},{l:"روش",k:"method"},{l:"توضیح",k:"note"}],state.transactions.slice().reverse(),"transactions");table("accountsTable",[{l:"کد",k:"code"},{l:"نام",k:"name"},{l:"نوع",k:"type"},{l:"اول‌دوره",k:"opening",f:money},{l:"ورودی",k:"inflow",f:money},{l:"خروجی",k:"outflow",f:money},{l:"موجودی",k:"balance",f:money}],accountsD(),"accounts");table("membersTable",[{l:"کد",k:"code"},{l:"عضو",k:"name"},{l:"نقش",k:"role"},{l:"درصد",k:"commissionRate",f:pct},{l:"فروش",k:"gross",f:money},{l:"ایجاد",k:"generated",f:money},{l:"پرداخت",k:"paid",f:money},{l:"مانده",k:"balance",f:money},{l:"سفارش",k:"orderCount",f:v=>fmt.format(v)}],membersD(),"members");table("checksTable",[{l:"کد",k:"code"},{l:"نوع",k:"type"},{l:"شماره چک",k:"number"},{l:"طرف",k:"party"},{l:"بانک",k:"bank"},{l:"سررسید",k:"dueDate"},{l:"مبلغ",k:"amount",f:money},{l:"وضعیت",h:r=>badge(r.status)},{l:"روز",k:"days",f:v=>fmt.format(v)},{l:"هشدار",h:r=>badge(r.alert)}],checksD(),"checks");table("debtsTable",[{l:"کد",k:"code"},{l:"طلبکار",k:"creditor"},{l:"اصل",k:"principal",f:money},{l:"پرداخت",k:"paid",f:money},{l:"مانده",k:"balance",f:money},{l:"سررسید",k:"dueDate"},{l:"روز",k:"days",f:v=>fmt.format(v)},{l:"هشدار",h:r=>badge(r.alert)}],debtsD(),"debts");table("investmentsTable",[{l:"کد",k:"code"},{l:"عنوان",k:"title"},{l:"سرمایه",k:"invested",f:money},{l:"ارزش",k:"currentValue",f:money},{l:"سود/زیان",k:"profit",f:money},{l:"ROI",k:"roi",f:pct},{l:"خروج",k:"exitTarget"},{l:"هشدار",h:r=>badge(r.alert)}],invD(),"investments")}
 
 function renderKpiStudio(){
   ensureKpiDefinitions();
@@ -571,9 +620,9 @@ function renderKpiStudio(){
   const cat=$("#kpiCatalog");
   if(cat){cat.innerHTML=visible.length?visible.map(d=>`<div class="kpi-def-card"><h4>${d.title}</h4><div class="value">${formatKpiValue(d.value,d.unit)}</div><div class="meta">${badge(d.group)} ${badge(d.status)} <span class="pill">هدف: ${formatKpiValue(d.target,d.unit)}</span></div><div class="formula">منبع: ${metricLabel(d.metric)} | جهت: ${d.direction==="higher"?"بیشتر بهتر":"کمتر بهتر"} | امتیاز: ${fmt.format(d.score)}</div></div>`).join(""):`<div class="no-data">KPI قابل نمایش برای این نقش وجود ندارد. با حساب مدیر مالی یا مدیریت کل وارد شو یا یک KPI جدید تعریف کن.</div>`}
   const cols=[{l:"کد",k:"id"},{l:"KPI",k:"title"},{l:"گروه",h:r=>badge(r.group)},{l:"منبع",h:r=>metricLabel(r.metric)},{l:"مقدار",h:r=>formatKpiValue(r.value,r.unit)},{l:"هدف",h:r=>formatKpiValue(r.target,r.unit)},{l:"جهت",h:r=>r.direction==="higher"?"بیشتر بهتر":"کمتر بهتر"},{l:"وضعیت",h:r=>badge(r.status)},{l:"امتیاز",k:"score",f:v=>fmt.format(v)},{l:"نمایش",k:"visibility"}];
-  if($("#kpiDefinitionsTable")) table("kpiDefinitionsTable",cols,defs);
+  if($("#kpiDefinitionsTable")) table("kpiDefinitionsTable",cols,defs,"kpi/definitions");
   if($("#kpiReportTable")) table("kpiReportTable",cols,visible);
-  if($("#definitionsTable")) table("definitionsTable",[{l:"کد",k:"code"},{l:"نوع",k:"type"},{l:"عنوان",k:"title"},{l:"گروه",k:"group"},{l:"فرمول/توضیح",k:"formula"},{l:"وضعیت",h:r=>badge(r.status)},{l:"مالک",h:r=>roleFa(r.ownerRole)}],state.financeDefinitions||[]);
+  if($("#definitionsTable")) table("definitionsTable",[{l:"کد",k:"code"},{l:"نوع",k:"type"},{l:"عنوان",k:"title"},{l:"گروه",k:"group"},{l:"فرمول/توضیح",k:"formula"},{l:"وضعیت",h:r=>badge(r.status)},{l:"مالک",h:r=>roleFa(r.ownerRole)}],state.financeDefinitions||[],"finance-definitions");
 }
 function renderKpiMetricSelect(){const el=$("#kpiMetricSelect"); if(!el)return; const old=el.value; el.innerHTML=metricCatalog().map(([v,l])=>`<option value="${v}">${l}</option>`).join(""); if(old) el.value=old;}
 
@@ -590,7 +639,7 @@ function drawDonut(id,data){let b=drawBase(id);if(!b)return;let{ctx,w,h}=b,total
 function drawBars(id,data,mode){let b=drawBase(id);if(!b)return;let{ctx,w,h}=b,max=Math.max(...data.map(x=>x[1]),1),pad=34,step=(h-pad*2)/Math.max(data.length,1);data.forEach((d,i)=>{let y=pad+i*step+6,bw=(w-180)*d[1]/max,gr=ctx.createLinearGradient(0,0,w,0);gr.addColorStop(0,"#005B41");gr.addColorStop(.45,"#F5CB5C");gr.addColorStop(1,"#6D28D9");ctx.fillStyle="rgba(255,255,255,.06)";round(ctx,78,y,w-120,step*.48,10);ctx.fillStyle=gr;round(ctx,78,y,bw,step*.48,10);ctx.fillStyle="#E7EEF9";ctx.font="12px Tahoma";ctx.textAlign="right";ctx.fillText(d[0],w-16,y+step*.25+5);ctx.textAlign="left";ctx.fillStyle="#F5CB5C";ctx.fillText(mode==="money"?money(d[1]):fmt.format(Math.round(d[1])),14,y+step*.25+5)})}
 function drawGrouped(id,data){let b=drawBase(id);if(!b)return;let{ctx,w,h}=b,max=Math.max(...data.flatMap(x=>x.slice(1)),1),pad=44,gw=(w-pad*2)/Math.max(data.length,1),colors=["#F5CB5C","#10B981","#EF4444"];data.forEach((d,i)=>{let x=pad+i*gw+gw*.18,bw=gw*.16;d.slice(1).forEach((v,j)=>{let bh=(h-85)*v/max;ctx.fillStyle=colors[j];round(ctx,x+j*(bw+5),h-42-bh,bw,bh,7)});ctx.save();ctx.translate(x+12,h-15);ctx.rotate(-.25);ctx.fillStyle="#CBD5E1";ctx.font="11px Tahoma";ctx.textAlign="center";ctx.fillText(d[0],0,0);ctx.restore()})}
 function drawGauge(id,value){let b=drawBase(id);if(!b)return;let{ctx,w,h}=b,cx=w/2,cy=h*.74,r=Math.min(w,h)*.55;ctx.lineWidth=19;ctx.lineCap="round";ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI*2);ctx.strokeStyle="rgba(255,255,255,.08)";ctx.stroke();let g=ctx.createLinearGradient(30,0,w-30,0);g.addColorStop(0,"#10B981");g.addColorStop(.52,"#F5CB5C");g.addColorStop(1,"#EF4444");ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+Math.PI*value/100);ctx.strokeStyle=g;ctx.stroke();let a=Math.PI+Math.PI*value/100;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*(r-16),cy+Math.sin(a)*(r-16));ctx.strokeStyle="#fff";ctx.lineWidth=4;ctx.stroke();ctx.fillStyle="#F5CB5C";ctx.font="900 34px Tahoma";ctx.textAlign="center";ctx.fillText(fmt.format(Math.round(value)),cx,cy-34);ctx.fillStyle="#A7B1C2";ctx.font="12px Tahoma";ctx.fillText("Risk / 100",cx,cy-10)}
-function nav(p){$$(".page").forEach(x=>x.classList.toggle("active",x.id===p));$$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===p));let titles={dashboard:["داشبورد فرماندهی","نمای لوکس، ریسپانسیو و فرمول‌محور برای مدیریت پیش‌فروش"],crm:["CRM مشتریان","پرونده مشتری، مانده و ریسک"],sales:["فروش و قرارداد","سفارش، تخفیف روتاری، تحویل و پورسانت"],transactions:["دفتر تراکنش","منبع رسمی پول"],members:["اعضا و پورسانت","محاسبه پورسانت با فرمول‌های قابل تغییر"],checks:["چک‌ها","هشدارهای سررسید و وصول"],debts:["بدهی‌ها","تعهدات و معوقات"],investments:["سرمایه‌گذاری","ROI و سود/زیان"],reports:["گزارش KPI","کیفیت، عملیات و ریسک"],kpiStudio:["KPI Studio","تعریف شاخص، منبع محاسبه، هدف، مرز هشدار و مرز بحرانی"],queue:["صف هشدار","چیدمان خودکار هشدارها بر اساس ریسک، تحویل، مانده، چک و بدهی"],seller:["پنل فروشنده","ثبت مشتری با دسترسی محدود"],formula:["فرمول و هشدارها","Formula Studio مدیر مالی"],guide:["راهنمای کامل","روش اجرا، دسترسی‌ها، صف هشدار و مسیر توسعه"]};$("#pageTitle").textContent=titles[p][0];$("#pageSubtitle").textContent=titles[p][1];setTimeout(renderDash,80); if(p==="kpiStudio") setTimeout(renderKpiStudio,120)}
+function nav(p){$$(".page").forEach(x=>x.classList.toggle("active",x.id===p));$$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===p));let titles={dashboard:["داشبورد فرماندهی","نمای لوکس، ریسپانسیو و فرمول‌محور برای مدیریت پیش‌فروش"],crm:["CRM مشتریان","پرونده مشتری، مانده و ریسک"],sales:["فروش و قرارداد","سفارش، تخفیف روتاری، تحویل و پورسانت"],transactions:["دفتر تراکنش","منبع رسمی پول"],accounts:["حساب‌ها و صندوق‌ها","ثبت و مدیریت حساب‌های بانکی، نقدی و صندوق‌ها"],members:["اعضا و پورسانت","محاسبه پورسانت با فرمول‌های قابل تغییر"],checks:["چک‌ها","هشدارهای سررسید و وصول"],debts:["بدهی‌ها","تعهدات و معوقات"],investments:["سرمایه‌گذاری","ROI و سود/زیان"],reports:["گزارش KPI","کیفیت، عملیات و ریسک"],kpiStudio:["KPI Studio","تعریف شاخص، منبع محاسبه، هدف، مرز هشدار و مرز بحرانی"],queue:["صف هشدار","چیدمان خودکار هشدارها بر اساس ریسک، تحویل، مانده، چک و بدهی"],seller:["پنل فروشنده","ثبت مشتری با دسترسی محدود"],formula:["فرمول و هشدارها","Formula Studio مدیر مالی"],guide:["راهنمای کامل","روش اجرا، دسترسی‌ها، صف هشدار و مسیر توسعه"]};$("#pageTitle").textContent=titles[p][0];$("#pageSubtitle").textContent=titles[p][1];setTimeout(renderDash,80); if(p==="kpiStudio") setTimeout(renderKpiStudio,120)}
 $$(".nav button").forEach(b=>b.onclick=()=>nav(b.dataset.page));if($("#roleSelect")) $("#roleSelect").onchange=e=>{state.sessionRole=e.target.value;render();};
 $("#queueSortMode")?.addEventListener("change",()=>renderQueue());
 $("#refreshQueue")?.addEventListener("click",()=>renderQueue());
@@ -607,6 +656,11 @@ $("#kpiForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(
 $("#definitionForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/finance-definitions",{type:fd.type,code:fd.code,title:fd.title,group:fd.group,formula:fd.formula,status:fd.status,ownerRole:fd.ownerRole});e.target.reset();nav("kpiStudio");}catch(err){alert(err.message);}};
 $("#checkForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/checks",{type:fd.type,number:fd.number,party:fd.party,bank:fd.bank,refId:fd.refId,issueDate:fd.issueDate,dueDate:fd.dueDate,amount:num(fd.amount||0),status:fd.status});e.target.reset();nav("checks");}catch(err){alert(err.message);}};
 
+$("#accountForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/accounts",{name:fd.name,type:fd.type,opening:num(fd.opening||0)});e.target.reset();nav("accounts");}catch(err){alert(err.message);}};
+$("#memberForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/members",{name:fd.name,role:fd.role,commissionRate:num(fd.commissionRate||0),status:fd.status});e.target.reset();nav("members");}catch(err){alert(err.message);}};
+$("#debtForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/debts",{creditor:fd.creditor,type:fd.type,description:fd.description,principal:num(fd.principal||0),dueDate:fd.dueDate,status:fd.status});e.target.reset();nav("debts");}catch(err){alert(err.message);}};
+$("#investmentForm").onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));try{await apiCreate("/investments",{title:fd.title,source:fd.source,startDate:fd.startDate,currentValue:num(fd.currentValue||0),status:fd.status,exitTarget:fd.exitTarget});e.target.reset();nav("investments");}catch(err){alert(err.message);}};
+document.addEventListener("click",async e=>{const b=e.target.closest?e.target.closest(".row-del"):null;if(!b)return;e.preventDefault();if(!confirm("این رکورد حذف شود؟"))return;try{await api("/"+b.dataset.res+"/"+b.dataset.id,{method:"DELETE"});await loadFromApi();render();}catch(err){alert(err.message);}});
 addEventListener("resize",()=>setTimeout(renderDash,150));boot();
 </script>
 </body>

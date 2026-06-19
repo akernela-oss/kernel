@@ -1,9 +1,11 @@
 /**
- * Shared seeding logic (demo dataset from the frontend, relationships intact).
+ * Seeding logic, split into:
+ *   - seedCore: the minimum to USE the app (login users, settings, KPI templates).
+ *   - seedDemo: optional sample business data (accounts, members, customers,
+ *     orders, transactions, ...). Loaded only when explicitly requested.
  *
- * Used both by the standalone `prisma/seed.ts` script and by the in-app
- * SeedService (auto-seed on first boot). Running it through the compiled app
- * avoids any ts-node/ESM pitfalls in containers.
+ * By default a fresh install starts EMPTY of business data so the user enters
+ * their own. The standalone `prisma/seed.ts` script loads the demo too.
  */
 import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
@@ -37,30 +39,61 @@ async function clear(prisma: PrismaClient): Promise<void> {
   await prisma.appSetting.deleteMany();
 }
 
-export async function seedDatabase(
-  prisma: PrismaClient,
-  opts: { reset?: boolean } = {},
-): Promise<SeedCounts> {
-  if (opts.reset) await clear(prisma);
-
+/** Essentials: login users, default settings/formulas and KPI/finance templates. */
+export async function seedCore(prisma: PrismaClient): Promise<void> {
   await prisma.appSetting.upsert({
     where: { id: 'default' },
     create: { id: 'default' },
     update: {},
   });
 
-  const passwordHash = await bcrypt.hash('1234', 10);
-  const userMap = new Map<string, string>();
-  for (const u of [
-    { name: 'مدیر کل', username: 'ceo', role: Role.ADMIN },
-    { name: 'مدیر مالی', username: 'finance', role: Role.FINANCE },
-    { name: 'فروشنده یک', username: 'seller1', role: Role.SELLER },
-    { name: 'کارشناس قرارداد', username: 'contract', role: Role.CONTRACT },
-  ]) {
-    const row = await prisma.user.create({ data: { ...u, passwordHash } });
-    userMap.set(u.username, row.id);
+  if ((await prisma.user.count()) === 0) {
+    const passwordHash = await bcrypt.hash('1234', 10);
+    await prisma.user.createMany({
+      data: [
+        { name: 'مدیر کل', username: 'ceo', role: Role.ADMIN, passwordHash },
+        { name: 'مدیر مالی', username: 'finance', role: Role.FINANCE, passwordHash },
+        { name: 'فروشنده یک', username: 'seller1', role: Role.SELLER, passwordHash },
+        { name: 'کارشناس قرارداد', username: 'contract', role: Role.CONTRACT, passwordHash },
+      ],
+    });
   }
-  const sellerId = userMap.get('seller1') as string;
+
+  if ((await prisma.kpiDefinition.count()) === 0) {
+    await prisma.kpiDefinition.createMany({ data: defaultKpis() });
+  }
+  if ((await prisma.financeDefinition.count()) === 0) {
+    await prisma.financeDefinition.createMany({
+      data: [
+        {
+          type: 'قانون هشدار',
+          code: 'DELIVERY-QUEUE',
+          title: 'صف تحویل',
+          group: 'عملیات',
+          formula: 'daysToDelivery + balanceRisk + contractRisk',
+          status: 'فعال',
+          ownerRole: 'finance',
+        },
+        {
+          type: 'فرمول KPI',
+          code: 'COLLECTION-RATE',
+          title: 'نرخ وصول وجه',
+          group: 'مالی',
+          formula: 'received / salesTotal * 100',
+          status: 'فعال',
+          ownerRole: 'finance',
+        },
+      ],
+    });
+  }
+}
+
+/** Optional sample business data (the demo examples). */
+export async function seedDemo(prisma: PrismaClient): Promise<void> {
+  if ((await prisma.customer.count()) > 0) return;
+
+  const seller = await prisma.user.findFirst({ where: { role: Role.SELLER } });
+  const sellerId = seller ? seller.id : null;
 
   const accountMap = new Map<string, string>();
   for (const a of [
@@ -465,31 +498,15 @@ export async function seedDatabase(
       },
     ],
   });
+}
 
-  await prisma.kpiDefinition.createMany({ data: defaultKpis() });
-
-  await prisma.financeDefinition.createMany({
-    data: [
-      {
-        type: 'قانون هشدار',
-        code: 'DELIVERY-QUEUE',
-        title: 'صف تحویل',
-        group: 'عملیات',
-        formula: 'daysToDelivery + balanceRisk + contractRisk',
-        status: 'فعال',
-        ownerRole: 'finance',
-      },
-      {
-        type: 'فرمول KPI',
-        code: 'COLLECTION-RATE',
-        title: 'نرخ وصول وجه',
-        group: 'مالی',
-        formula: 'received / salesTotal * 100',
-        status: 'فعال',
-        ownerRole: 'finance',
-      },
-    ],
-  });
+export async function seedDatabase(
+  prisma: PrismaClient,
+  opts: { reset?: boolean; demo?: boolean } = {},
+): Promise<SeedCounts> {
+  if (opts.reset) await clear(prisma);
+  await seedCore(prisma);
+  if (opts.demo) await seedDemo(prisma);
 
   return {
     users: await prisma.user.count(),

@@ -47,8 +47,16 @@ docker compose up --build
 ```
 
 Then open **http://localhost:3000** — the web UI is served there and talks to
-the live API. The database **auto-seeds on first run**, so just log in with
-`ceo / 1234`. API docs are at `http://localhost:3000/api/docs`.
+the live API. Log in with `ceo / 1234`. API docs are at
+`http://localhost:3000/api/docs`.
+
+**The system starts empty** (only the login users + KPI templates) so you enter
+your own real data. Every section has a form to add records and a حذف (delete)
+button on each row: حساب‌ها/صندوق‌ها, اعضا, مشتریان (CRM), فروش, تراکنش, چک,
+بدهی, سرمایه‌گذاری, KPI و تعاریف. Use **خروجی JSON** to export everything.
+
+Want the sample demo data back to explore? Set `SEED_DEMO=true` in
+`docker-compose.yml` (or the environment) before the first run.
 
 ### Local backend
 

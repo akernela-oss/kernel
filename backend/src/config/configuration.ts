@@ -17,6 +17,7 @@ export interface AppConfig {
   };
   logLevel: string;
   autoSeed: boolean;
+  seedDemo: boolean;
 }
 
 export default (): AppConfig => ({
@@ -40,4 +41,5 @@ export default (): AppConfig => ({
   },
   logLevel: process.env.LOG_LEVEL ?? 'info',
   autoSeed: (process.env.AUTO_SEED ?? 'true').toLowerCase() !== 'false',
+  seedDemo: (process.env.SEED_DEMO ?? 'false').toLowerCase() === 'true',
 });

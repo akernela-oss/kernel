@@ -38,6 +38,7 @@ services:
       THROTTLE_LIMIT: '300'
       LOG_LEVEL: info
       AUTO_SEED: 'true'
+      SEED_DEMO: 'false'
     ports:
       - '3000:3000'
 

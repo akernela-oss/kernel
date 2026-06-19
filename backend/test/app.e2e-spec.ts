@@ -270,6 +270,37 @@ describe('Presale Command Center API (e2e)', () => {
     });
   });
 
+  describe('create + delete across resources', () => {
+    it('creates an account, member, debt and investment', async () => {
+      const cases: Array<[string, Record<string, unknown>]> = [
+        ['/accounts', { name: 'حساب تست', type: 'بانکی', opening: 1000 }],
+        ['/members', { name: 'عضو تست', role: 'فروشنده', commissionRate: 0.01 }],
+        [
+          '/debts',
+          { creditor: 'طلبکار تست', type: 'بانکی', principal: 5000, dueDate: '2026-07-01' },
+        ],
+        ['/investments', { title: 'سرمایه تست', currentValue: 2000 }],
+      ];
+      for (const [path, body] of cases) {
+        const res = await request(server).post(`/api/v1${path}`).set(auth('finance')).send(body);
+        expect(res.status).toBe(201);
+        expect(res.body.id).toBeDefined();
+      }
+    });
+
+    it('deletes a record and it is gone', async () => {
+      const created = await request(server)
+        .post('/api/v1/customers')
+        .set(auth('finance'))
+        .send({ name: 'مشتری حذفی' });
+      const id = created.body.id;
+      const del = await request(server).delete(`/api/v1/customers/${id}`).set(auth('finance'));
+      expect(del.status).toBe(200);
+      const after = await request(server).get(`/api/v1/customers/${id}`).set(auth('finance'));
+      expect(after.status).toBe(404);
+    });
+  });
+
   describe('settings drive the engine', () => {
     it('reads and updates Formula Studio settings', async () => {
       const get = await request(server).get('/api/v1/settings').set(auth('finance'));
